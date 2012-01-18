@@ -125,6 +125,7 @@ void Task::updateHook()
     */
     	
     base::MotionCommand2D MRmotion;
+    bool MRdoResetOdometry = 0;
     
     if (_transrot_vel.read(MRmotion) != RTT::NoData){
     	//return;
@@ -144,6 +145,17 @@ void Task::updateHook()
         //MRrobot.unlock();
         MRrobot->unlock();
         //cout<<"Aria_Task: Thread unlocked"<<endl;
+    }
+    
+    if(_reset_odometry.read(MRdoResetOdometry) != RTT::NoData){
+    
+        if( MRdoResetOdometry ){
+            cout<<"Aria_Task: Resetting Odometer"<<endl;
+        
+            MRrobot->lock();
+            MRrobot->resetTripOdometer();
+            MRrobot->unlock();
+        }
     }
     
     
