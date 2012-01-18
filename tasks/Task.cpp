@@ -126,24 +126,76 @@ void Task::updateHook()
     	
     base::MotionCommand2D MRmotion;
     
-    if (_transrot_vel.read(MRmotion) == RTT::NoData)
-    	return;
+    if (_transrot_vel.read(MRmotion) != RTT::NoData){
+    	//return;
     
-    cout<<"Aria_Task: Command received"<<endl;
-    cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<", RotVel "<<MRmotion.rotation<<endl;
+        cout<<"Aria_Task: Command received"<<endl;
+        cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<", RotVel "<<MRmotion.rotation<<endl;
+    
+    
+        MRrobot->lock();
+        //cout<<"Aria_Task: Thread locked"<<endl;
+    
+        //MRrobot.setVel(MRmotion.translation);
+        MRrobot->setVel(MRmotion.translation * 1000);
+        //MRrobot.setRotVel(MRmotion.rotation);
+        MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
+    
+        //MRrobot.unlock();
+        MRrobot->unlock();
+        //cout<<"Aria_Task: Thread unlocked"<<endl;
+    }
+    
+    
+    // Get data from robot
+    //base::Pose MRpose;
+    base::samples::RigidBodyState MRpose;
+    base::MotionCommand2D MRvel;
+    double MRbatteryLevel = 0;
+    double MRtemperature = 0;
+    double MRcompass = 0;
+    double MRodomDist = 0, MRodomDegr = 0;
+    long int MRencL = 0, MRencR = 0;
     
     
     MRrobot->lock();
-    cout<<"Aria_Task: Thread locked"<<endl;
     
-    //MRrobot.setVel(MRmotion.translation);
-    MRrobot->setVel(MRmotion.translation * 1000);
-    //MRrobot.setRotVel(MRmotion.rotation);
-    MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
+    // Position
+    MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
+    MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh(), Eigen::Vector3d::UnitZ());
     
-    //MRrobot.unlock();
+    // Velocity
+    MRvel.translation = MRrobot->getVel(); // in mm/s
+    MRvel.rotation = MRrobot->getRotVel(); // in deg/s
+    
+    // Battery, Temperature, Compass
+    MRbatteryLevel = MRrobot->getStateOfCharge();
+    MRtemperature = MRrobot->getTemperature();
+    MRcompass = MRrobot->getCompass();
+    
+    // Odomerty
+    MRodomDist = MRrobot->getTripOdometerDistance();
+    MRodomDegr = MRrobot->getTripOdometerDegrees();
+    
+    // Raw Data from left and right Encoders
+    MRrobot->requestEncoderPackets();
+    MRencL = MRrobot->getLeftEncoder();
+    MRencR = MRrobot->getRightEncoder();
+    MRrobot->stopEncoderPackets();
+    
     MRrobot->unlock();
-    cout<<"Aria_Task: Thread unlocked"<<endl;
+    
+    // send messages
+    _robot_pose.write(MRpose);
+    _robot_motion.write(MRvel);
+    
+    _robot_battery.write(MRbatteryLevel);
+    _robot_temp.write(MRtemperature);
+    _robot_compass.write(MRcompass);
+    _odom_dist.write(MRodomDist);
+    _odom_degr.write(MRodomDegr);
+    _enc_left.write(MRencL);
+    _enc_right.write(MRencR);
     
 }
 // void Task::errorHook()

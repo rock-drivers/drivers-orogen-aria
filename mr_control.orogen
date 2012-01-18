@@ -37,10 +37,16 @@ task_context "Task" do
    #
    # Data can be written using _output.write(value). _output.connected() returns
    # if this output is connected to an input or not.
-   output_port "robot_pose", "/base/Pose"
+#   output_port "robot_pose", "/base/Pose"
+   output_port "robot_pose", "/base/samples/RigidBodyState"
    output_port "robot_motion", "/base/MotionCommand2D"
    output_port "robot_compass", "double"
    output_port "robot_battery", "double"
+   output_port "robot_temp", "double"
+   output_port "odom_dist", "double"
+   output_port "odom_degr", "double"
+   output_port "enc_left", "long int"
+   output_port "enc_right", "long int"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
@@ -60,5 +66,6 @@ end
 
 deployment "robot_control" do
     task("mr_control", "Task").periodic(0.1)
+    add_default_logger
 end
 
