@@ -1,0 +1,17 @@
+<package>
+  <description brief="Orogen component to control robots of MobileRobots like SeekurJr and Pioneer">
+  
+  </description>
+  <author>Christian Rauch/Christian.Rauch@dfki.de</author>
+  <license></license>
+  <url>http://</url>
+  <logo>http://</logo>
+  <!--
+   To add any dependencies use the depend tag
+  <depend package="dummy-dependency-0" />
+	...
+  <depend package="dummy-dependency-n-1" />
+  <depend package="dummy-dependency-n" />
+  -->
+  <depend package="virgo/aria" />
+</package>
