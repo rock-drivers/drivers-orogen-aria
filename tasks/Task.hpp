@@ -32,7 +32,6 @@ namespace mr_control {
         ArRobotConnector *MRconnector;
 
 
-
     public:
         /** TaskContext constructor for Task
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
@@ -109,7 +108,7 @@ namespace mr_control {
          * from Stopped to PreOperational, requiring the call to configureHook()
          * before calling start() again.
          */
-        // void cleanupHook();
+        void cleanupHook();
     };
 }
 

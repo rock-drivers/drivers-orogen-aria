@@ -1,7 +1,6 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
-//#include "Aria.h"
 
 using namespace mr_control;
 
@@ -35,7 +34,25 @@ bool Task::configureHook()
 {
     if (! TaskBase::configureHook())
         return false;
-
+    
+    ArArgumentBuilder *MRarguments = new ArArgumentBuilder();
+    
+    MRarguments->add("-robotPort");
+    MRarguments->add(_serial_port.get().c_str());
+    
+    cout<<"Aria_Task: List of Parameters: "<<MRarguments->getFullString()<<endl;
+    
+    MRparser = new ArArgumentParser(MRarguments);
+    MRparser->loadDefaultArguments();
+    MRparser->log();
+    
+    if(!MRparser->checkHelpAndWarnUnparsed())
+        cout<<"Aria_Task: UnparsMRed Arguments found"<<endl;
+        
+    cout<<"Aria_Task: params "<<*MRparser->getArgv()<<endl;
+    
+    delete MRarguments;
+    MRarguments = 0;
     
     return true;
 }
@@ -47,6 +64,8 @@ bool Task::startHook()
     // Initialise Aria
     Aria::init();
     
+    cout<<"Aria_Task: Initialised"<<endl;
+    
     //ArArgumentBuilder MRarguments(512); // largest number of arguments = 512
     //ArArgumentBuilder *MRarguments = new ArArgumentBuilder();
     
@@ -55,25 +74,27 @@ bool Task::startHook()
     
     //cout<<"Aria_Task: List of Parameters: "<<MRarguments->getFullString()<<endl;
     
+    /*
     char const* argv[] = { "", "-robotPort", _serial_port.get().c_str() };
     int argc = 3;
     MRparser = new ArArgumentParser(&argc, const_cast<char**>(argv));
     MRparser->loadDefaultArguments();
     MRparser->log();
     
+    
     if(!MRparser->checkHelpAndWarnUnparsed())
         cout<<"Aria_Task: UnparsMRed Arguments found"<<endl;
         
     cout<<"Aria_Task: params "<<*MRparser->getArgv()<<endl;
+    */
     
-    cout<<"Aria_Task: Initialised"<<endl;
 
     MRrobot = new ArRobot("", true, false);
     MRconnector = new ArRobotConnector(MRparser, MRrobot);
     //ArRobotConnector MRconnector(MRparser, MRrobot);
     
     //cout<<"Aria: Connector created"<<endl;
-    cout << "connector robot: " << MRconnector->getRobot() << " from class: " << MRrobot << endl;
+    //cout << "connector robot: " << MRconnector->getRobot() << " from class: " << MRrobot << endl;
     
     if (!MRconnector->connectRobot()){
         cout<<"Aria_Task: Could not connect!"<<endl;
@@ -147,13 +168,20 @@ void Task::stopHook()
     MRrobot->waitForRunExit();
 
     Aria::shutdown();
+    
     delete MRconnector;
     MRconnector = 0;
     
+    delete MRrobot;
+    MRrobot = 0;
+    
     cout<<"Aria_Task: Shutdown"<<endl;
 }
-// void Task::cleanupHook()
-// {
-//     TaskBase::cleanupHook();
-// }
+void Task::cleanupHook()
+{
+    TaskBase::cleanupHook();
+    
+    delete MRparser;
+    MRparser = 0;
+}
 
