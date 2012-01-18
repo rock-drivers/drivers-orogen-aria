@@ -112,9 +112,6 @@ bool Task::startHook()
     
     cout<<"Aria_Task: Thread started"<<endl;
     
-    //cout<<"Aria_Task: Waiting"<<endl;
-    //ArUtil::sleep(3000);
-    
     return true;
 }
 void Task::updateHook()
@@ -135,8 +132,6 @@ void Task::updateHook()
     cout<<"Aria_Task: Command received"<<endl;
     cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<", RotVel "<<MRmotion.rotation<<endl;
     
-    //cout<<"Aria_Task: Waiting 2s in updateHook"<<endl;
-    //ArUtil::sleep(2000);
     
     MRrobot->lock();
     cout<<"Aria_Task: Thread locked"<<endl;
@@ -149,8 +144,6 @@ void Task::updateHook()
     //MRrobot.unlock();
     MRrobot->unlock();
     cout<<"Aria_Task: Thread unlocked"<<endl;
-    
-    //ArUtil::sleep(2000);
     
 }
 // void Task::errorHook()
