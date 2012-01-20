@@ -4,7 +4,9 @@
 #define MR_CONTROL_TASK_TASK_HPP
 
 #include "mr_control/TaskBase.hpp"
+
 #include "Aria.h"
+#include "AriaTypes.hpp"
 
 namespace mr_control {
 

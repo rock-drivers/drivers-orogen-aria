@@ -156,12 +156,20 @@ void Task::updateHook()
     // Fetch Motion- and Odometer-Data from Robot, as well as miscellaneous Data
     //base::Pose MRpose;
     base::samples::RigidBodyState MRpose;
-    base::MotionCommand2D MRvel;
-    double MRbatteryLevel = 0;
-    double MRtemperature = 0;
-    double MRcompass = 0;
-    double MRodomDist = 0, MRodomDegr = 0;
-    long int MRencL = 0, MRencR = 0;
+    //base::MotionCommand2D MRvel;
+    AriaType::samples::Velocity MRvel;
+    //double MRbatteryLevel = 0;
+    AriaType::samples::BatteryLevel MRbatteryLevel;
+    //double MRtemperature = 0;
+    AriaType::samples::Temperature MRtemperature;
+    //double MRcompass = 0;
+    AriaType::samples::CompassHeading MRcompass;
+    
+    AriaType::samples::Odometer MRodom;
+    AriaType::samples::Encoder MRenc;
+    
+    //double MRodomDist = 0, MRodomDegr = 0;
+    //long int MRencL = 0, MRencR = 0;
     
     
     MRrobot->lock();
@@ -171,23 +179,30 @@ void Task::updateHook()
     MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh(), Eigen::Vector3d::UnitZ());
     
     // Velocity
-    MRvel.translation = MRrobot->getVel(); // in mm/s
-    MRvel.rotation = MRrobot->getRotVel(); // in deg/s
+    MRvel.velTransRot.translation = MRrobot->getVel(); // in mm/s
+    MRvel.velTransRot.rotation = MRrobot->getRotVel(); // in deg/s
+    
+    MRvel.time = base::Time::now();
     
     // Battery, Temperature, Compass
-    MRbatteryLevel = MRrobot->getStateOfCharge();
-    MRtemperature = MRrobot->getTemperature();
-    MRcompass = MRrobot->getCompass();
+    MRbatteryLevel.battery = MRrobot->getStateOfCharge();
+    MRbatteryLevel.time = base::Time::now();
+    MRtemperature.temp = MRrobot->getTemperature();
+    MRtemperature.time = base::Time::now();
+    MRcompass.heading = MRrobot->getCompass();
+    MRcompass.time = base::Time::now();
     
     // Odomerty
-    MRodomDist = MRrobot->getTripOdometerDistance();
-    MRodomDegr = MRrobot->getTripOdometerDegrees();
+    MRodom.odomDistance = MRrobot->getTripOdometerDistance();
+    MRodom.odomDegrees = MRrobot->getTripOdometerDegrees();
+    MRodom.time = base::Time::now();
     
     // Raw Data from left and right Encoders
     MRrobot->requestEncoderPackets();
-    MRencL = MRrobot->getLeftEncoder();
-    MRencR = MRrobot->getRightEncoder();
+    MRenc.encLeft = MRrobot->getLeftEncoder();
+    MRenc.encRight = MRrobot->getRightEncoder();
     MRrobot->stopEncoderPackets();
+    MRenc.time = base::Time::now();
     
     MRrobot->unlock();
     
@@ -197,8 +212,11 @@ void Task::updateHook()
     _robot_battery.write(MRbatteryLevel);
     _robot_temp.write(MRtemperature);
     _robot_compass.write(MRcompass);
-    _odom_dist.write(MRodomDist);
-    _odom_degr.write(MRodomDegr);
+    _robot_odometer.write(MRodom);
+    _robot_encoder.write(MRenc);
+    
+    //_odom_dist.write(MRodomDist);
+    //_odom_degr.write(MRodomDegr);
     //_enc_left.write(MRencL);
     //_enc_right.write(MRencR);
     

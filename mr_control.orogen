@@ -3,6 +3,7 @@ name "mr_control"
 # version "0.1"
 
 import_types_from "base"
+import_types_from "AriaTypes.hpp"
 using_library "aria"
 
 # If new data types need to be defined, they have to be put in a separate C++
@@ -30,7 +31,7 @@ task_context "Task" do
    # was available, and false otherwise. _input.connected() returns if this
    # input is connected to an output or not.
    input_port "transrot_vel", "/base/MotionCommand2D"
-   input_port "leftright_vel", "/base/MotionCommand2D"
+   input_port "leftright_vel", "/AriaType/commands/Velocity2"
    input_port "reset_odometry", "bool"
 
    # An output port, i.e. an object to which the component pushes data so that
@@ -38,16 +39,23 @@ task_context "Task" do
    #
    # Data can be written using _output.write(value). _output.connected() returns
    # if this output is connected to an input or not.
-#   output_port "robot_pose", "/base/Pose"
    output_port "robot_pose", "/base/samples/RigidBodyState"
-   output_port "robot_motion", "/base/MotionCommand2D"
-   output_port "robot_compass", "double"
-   output_port "robot_battery", "double"
-   output_port "robot_temp", "double"
-   output_port "odom_dist", "double"
-   output_port "odom_degr", "double"
-#   output_port "enc_left", "long int"
-#   output_port "enc_right", "long int"
+
+#   output_port "robot_motion", "/base/MotionCommand2D"
+#   output_port "robot_compass", "double"
+#   output_port "robot_battery", "double"
+#   output_port "robot_temp", "double"
+#   output_port "odom_dist", "double"
+#   output_port "odom_degr", "double"
+#   output_port "enc_left", "int"
+#   output_port "enc_right", "int"
+   
+   output_port "robot_motion", "/AriaType/samples/Velocity"
+   output_port "robot_compass", "/AriaType/samples/CompassHeading"
+   output_port "robot_battery", "/AriaType/samples/BatteryLevel"
+   output_port "robot_temp", "/AriaType/samples/Temperature"
+   output_port "robot_odometer", "/AriaType/samples/Odometer"
+   output_port "robot_encoder", "/AriaType/samples/Encoder"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
