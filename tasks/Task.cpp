@@ -94,8 +94,8 @@ bool Task::startHook()
     //ArRobotConnector MRconnector(MRparser, MRrobot);
     
     //cout<<"Aria: Connector created"<<endl;
-    //cout << "connector robot: " << MRconnector->getRobot() << " from class: " << MRrobot << endl;
     
+    // Connect to Robot or Simulator
     if (!MRconnector->connectRobot()){
         cout<<"Aria_Task: Could not connect!"<<endl;
         ArLog::log(ArLog::Terse, "Error, could not connect to robot.");
@@ -108,7 +108,6 @@ bool Task::startHook()
     
     // Open new thread for processing cycle
     MRrobot->runAsync(false);
-    //MRrobot->runAsync(false);
     
     cout<<"Aria_Task: Thread started"<<endl;
     
@@ -117,23 +116,17 @@ bool Task::startHook()
 void Task::updateHook()
 {
     TaskBase::updateHook();
-    /*
-    if ( MRrobot->isRunning() )
-    	cout << "Aria_Taks: aria is running!" << endl;
-    else
-    	cout << "not running!" << endl;
-    */
     	
     base::MotionCommand2D MRmotion;
     bool MRdoResetOdometry = 0;
     
+    // Process Motion Commands
     if (_transrot_vel.read(MRmotion) != RTT::NoData){
     	//return;
     
-        cout<<"Aria_Task: Command received"<<endl;
+        //cout<<"Aria_Task: Command received"<<endl;
         cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<", RotVel "<<MRmotion.rotation<<endl;
-    
-    
+        
         MRrobot->lock();
         //cout<<"Aria_Task: Thread locked"<<endl;
     
@@ -147,6 +140,7 @@ void Task::updateHook()
         //cout<<"Aria_Task: Thread unlocked"<<endl;
     }
     
+    // Process Reset of Odometer
     if(_reset_odometry.read(MRdoResetOdometry) != RTT::NoData){
     
         if( MRdoResetOdometry ){
@@ -159,7 +153,7 @@ void Task::updateHook()
     }
     
     
-    // Get data from robot
+    // Fetch Motion- and Odometer-Data from Robot, as well as miscellaneous Data
     //base::Pose MRpose;
     base::samples::RigidBodyState MRpose;
     base::MotionCommand2D MRvel;
@@ -197,17 +191,16 @@ void Task::updateHook()
     
     MRrobot->unlock();
     
-    // send messages
+    // Distribute Messages
     _robot_pose.write(MRpose);
     _robot_motion.write(MRvel);
-    
     _robot_battery.write(MRbatteryLevel);
     _robot_temp.write(MRtemperature);
     _robot_compass.write(MRcompass);
     _odom_dist.write(MRodomDist);
     _odom_degr.write(MRodomDegr);
-    _enc_left.write(MRencL);
-    _enc_right.write(MRencR);
+    //_enc_left.write(MRencL);
+    //_enc_right.write(MRencR);
     
 }
 // void Task::errorHook()

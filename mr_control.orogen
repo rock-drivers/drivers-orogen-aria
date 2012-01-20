@@ -46,8 +46,8 @@ task_context "Task" do
    output_port "robot_temp", "double"
    output_port "odom_dist", "double"
    output_port "odom_degr", "double"
-   output_port "enc_left", "long int"
-   output_port "enc_right", "long int"
+#   output_port "enc_left", "long int"
+#   output_port "enc_right", "long int"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
