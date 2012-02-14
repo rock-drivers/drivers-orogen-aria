@@ -125,7 +125,7 @@ void Task::updateHook()
     	//return;
     
         //cout<<"Aria_Task: Command received"<<endl;
-        cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<", RotVel "<<MRmotion.rotation<<endl;
+        cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<" m/s, RotVel "<<MRmotion.rotation<<" rad/s"<<endl;
         
         MRrobot->lock();
         //cout<<"Aria_Task: Thread locked"<<endl;
@@ -176,7 +176,11 @@ void Task::updateHook()
     
     // Position
     MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
-    MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh(), Eigen::Vector3d::UnitZ());
+    //MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh(), Eigen::Vector3d::UnitZ());
+    MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ());
+    
+    cout<<"Aria_Task: Theta: "<<MRrobot->getTh()<<"°"<<endl;
+    cout<<"Aria_Task: Yaw "<<MRpose.getYaw()<<", Pitch "<<MRpose.getPitch()<<", Roll "<<MRpose.getRoll()<<endl;
     
     // Velocity
     MRvel.velTransRot.translation = MRrobot->getVel(); // in mm/s
@@ -234,8 +238,11 @@ void Task::stopHook()
     
     //MRrobot.waitForRunExit();
     MRrobot->waitForRunExit();
-
+    
+    // Stop Aria background threads
     Aria::shutdown();
+    // Cleanup and exit Aria
+    Aria::exit(0);
     
     delete MRconnector;
     MRconnector = 0;
