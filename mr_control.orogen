@@ -31,8 +31,10 @@ task_context "Task" do
    # was available, and false otherwise. _input.connected() returns if this
    # input is connected to an output or not.
    input_port "transrot_vel", "/base/MotionCommand2D"
-   input_port "leftright_vel", "/AriaType/commands/Velocity2"
+   input_port "leftright_vel", "/AriaTypes/commands/Velocity2"
    input_port "reset_odometry", "bool"
+   input_port "device_power", "/AriaTypes/commands/DevicePower"
+   input_port "direct_command", "/AriaTypes/commands/DirectCommand2Byte"
 
    # An output port, i.e. an object to which the component pushes data so that
    # it is transmitted to other components' inputs
@@ -50,12 +52,12 @@ task_context "Task" do
 #   output_port "enc_left", "int"
 #   output_port "enc_right", "int"
    
-   output_port "robot_motion", "/AriaType/samples/Velocity"
-   output_port "robot_compass", "/AriaType/samples/CompassHeading"
-   output_port "robot_battery", "/AriaType/samples/BatteryLevel"
-   output_port "robot_temp", "/AriaType/samples/Temperature"
-   output_port "robot_odometer", "/AriaType/samples/Odometer"
-   output_port "robot_encoder", "/AriaType/samples/Encoder"
+   output_port "robot_motion", "/AriaTypes/samples/Velocity"
+   output_port "robot_compass", "/AriaTypes/samples/CompassHeading"
+   output_port "robot_battery", "/AriaTypes/samples/BatteryLevel"
+   output_port "robot_temp", "/AriaTypes/samples/Temperature"
+   output_port "robot_odometer", "/AriaTypes/samples/Odometer"
+   output_port "robot_encoder", "/AriaTypes/samples/Encoder"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
