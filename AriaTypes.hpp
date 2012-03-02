@@ -74,6 +74,19 @@ namespace samples
 		base::Time time;
 	};
 	
+	struct Bumpers
+	{
+		// Number of Bumpers (specific per Robot)
+		int nrFront;
+		int nrRear;
+		// States of Bumpers. See Aria Documentation and/or ArModes.cpp
+		// for an Example how to read out these values.
+		int front;
+		int rear;
+		
+		base::Time time;
+	};
+	
 } // end namespace samples
 } // end namespace AriaType
 
