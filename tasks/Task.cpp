@@ -47,9 +47,9 @@ bool Task::configureHook()
     MRparser->log();
     
     if(!MRparser->checkHelpAndWarnUnparsed())
-        cout<<"Aria_Task: UnparsMRed Arguments found"<<endl;
+        cout<<"Aria_Task: Unparsed Arguments found"<<endl;
         
-    cout<<"Aria_Task: params "<<*MRparser->getArgv()<<endl;
+    cout<<"Aria_Task: Used Parameters "<<*MRparser->getArgv()<<endl;
     
     delete MRarguments;
     MRarguments = 0;
@@ -66,32 +66,8 @@ bool Task::startHook()
     
     cout<<"Aria_Task: Initialised"<<endl;
     
-    //ArArgumentBuilder MRarguments(512); // largest number of arguments = 512
-    //ArArgumentBuilder *MRarguments = new ArArgumentBuilder();
-    
-    //MRarguments->add("-robotPort");
-    //MRarguments->add(_serial_port.get().c_str());
-    
-    //cout<<"Aria_Task: List of Parameters: "<<MRarguments->getFullString()<<endl;
-    
-    /*
-    char const* argv[] = { "", "-robotPort", _serial_port.get().c_str() };
-    int argc = 3;
-    MRparser = new ArArgumentParser(&argc, const_cast<char**>(argv));
-    MRparser->loadDefaultArguments();
-    MRparser->log();
-    
-    
-    if(!MRparser->checkHelpAndWarnUnparsed())
-        cout<<"Aria_Task: UnparsMRed Arguments found"<<endl;
-        
-    cout<<"Aria_Task: params "<<*MRparser->getArgv()<<endl;
-    */
-    
-
     MRrobot = new ArRobot("", true, false);
     MRconnector = new ArRobotConnector(MRparser, MRrobot);
-    //ArRobotConnector MRconnector(MRparser, MRrobot);
     
     //cout<<"Aria: Connector created"<<endl;
     
@@ -125,20 +101,16 @@ void Task::updateHook()
     
     // Process Motion Commands
     if (_transrot_vel.read(MRmotion) != RTT::NoData){
-    	//return;
     
         //cout<<"Aria_Task: Command received"<<endl;
         cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<" m/s, RotVel "<<MRmotion.rotation<<" rad/s"<<endl;
         
         MRrobot->lock();
         //cout<<"Aria_Task: Thread locked"<<endl;
-    
-        //MRrobot.setVel(MRmotion.translation);
+        
         MRrobot->setVel(MRmotion.translation * 1000);
-        //MRrobot.setRotVel(MRmotion.rotation);
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
-    
-        //MRrobot.unlock();
+        
         MRrobot->unlock();
         //cout<<"Aria_Task: Thread unlocked"<<endl;
     }
@@ -173,22 +145,16 @@ void Task::updateHook()
     }
     
     // Fetch Motion- and Odometer-Data from Robot, as well as miscellaneous Data
-    //base::Pose MRpose;
     base::samples::RigidBodyState MRpose;
-    //base::MotionCommand2D MRvel;
     AriaTypes::samples::Velocity MRvel;
-    //double MRbatteryLevel = 0;
     AriaTypes::samples::BatteryLevel MRbatteryLevel;
-    //double MRtemperature = 0;
     AriaTypes::samples::Temperature MRtemperature;
-    //double MRcompass = 0;
     AriaTypes::samples::CompassHeading MRcompass;
     
     AriaTypes::samples::Odometer MRodom;
     AriaTypes::samples::Encoder MRenc;
     
-    //double MRodomDist = 0, MRodomDegr = 0;
-    //long int MRencL = 0, MRencR = 0;
+    AriaTypes::samples::Bumpers MRbumpers;
     
     
     MRrobot->lock();
@@ -200,35 +166,71 @@ void Task::updateHook()
     MRpose.velocity = Eigen::Vector3d(MRrobot->getVel(), 0, 0); // m/s
     MRpose.angular_velocity = Eigen::Vector3d(MRrobot->getRotVel() * M_PI/180, 0, 0); // rad/s
     
-    cout<<"Aria_Task: Theta: "<<MRrobot->getTh()<<"°"<<endl;
-    cout<<"Aria_Task: Yaw "<<MRpose.getYaw()<<", Pitch "<<MRpose.getPitch()<<", Roll "<<MRpose.getRoll()<<endl;
+    //cout<<"Aria_Task: Theta: "<<MRrobot->getTh()<<"°"<<endl;
+    //cout<<"Aria_Task: Yaw "<<MRpose.getYaw()<<", Pitch "<<MRpose.getPitch()<<", Roll "<<MRpose.getRoll()<<endl;
     
     // Velocity
+    MRvel.time = base::Time::now();
     MRvel.velTransRot.translation = MRrobot->getVel(); // in mm/s
     MRvel.velTransRot.rotation = MRrobot->getRotVel(); // in deg/s
-    MRvel.time = base::Time::now();
     
-    // Battery, Temperature, Compass
-    MRbatteryLevel.battery = MRrobot->getStateOfCharge();
+    // Battery
     MRbatteryLevel.time = base::Time::now();
-    MRtemperature.temp = MRrobot->getTemperature();
+    MRbatteryLevel.battery = MRrobot->getStateOfCharge();
+    // Temperature
     MRtemperature.time = base::Time::now();
-    MRcompass.heading = MRrobot->getCompass();
+    MRtemperature.temp = MRrobot->getTemperature();
+    // Compass
     MRcompass.time = base::Time::now();
+    MRcompass.heading = MRrobot->getCompass();
     
     // Odomerty
+    MRodom.time = base::Time::now();
     MRodom.odomDistance = MRrobot->getTripOdometerDistance();
     MRodom.odomDegrees = MRrobot->getTripOdometerDegrees();
-    MRodom.time = base::Time::now();
     
     // Raw Data from left and right Encoders
+    MRenc.time = base::Time::now();
     MRrobot->requestEncoderPackets();
     MRenc.encLeft = MRrobot->getLeftEncoder();
     MRenc.encRight = MRrobot->getRightEncoder();
+    cout<<"Aria_Task: Encoder L: "<<MRrobot->getLeftEncoder()<<", R: "<<MRrobot->getRightEncoder()<<endl;
     MRrobot->stopEncoderPackets();
-    MRenc.time = base::Time::now();
+    
+    // Bumpers
+    // See Aria Documentation and/or ArModes.cpp for an Example how to read out these values.
+    MRbumpers.time = base::Time::now();
+    MRbumpers.nrFront = MRrobot->getNumFrontBumpers();
+    MRbumpers.nrRear = MRrobot->getNumRearBumpers();
+    
+    MRbumpers.front = ((MRrobot->getStallValue() & 0xff00) >> 8);
+    MRbumpers.rear = ((MRrobot->getStallValue() & 0xff));
+    
     
     MRrobot->unlock();
+    
+    bool frbump[MRbumpers.nrFront];
+    int bit = 0;
+    
+    for(int i = 0, bit = 2; i < MRbumpers.nrFront; i++, bit *= 2)
+    {
+    	frbump[i] = (MRbumpers.front & bit);
+    	/*
+        if (MRbumpers.front & bit)
+            printf("%6s", "trig");
+	else
+	    printf("%6s", "clear");
+	}
+	*/
+    }
+    
+    cout<<"Aria_Task: Front Bumpers: ";
+    for(int i=0; i<MRbumpers.nrFront; i++)
+    {
+    	cout<<frbump[i]<<" ";
+    }
+    cout<<endl;
+    
     
     // Distribute Messages
     _robot_pose.write(MRpose);
@@ -238,11 +240,7 @@ void Task::updateHook()
     _robot_compass.write(MRcompass);
     _robot_odometer.write(MRodom);
     _robot_encoder.write(MRenc);
-    
-    //_odom_dist.write(MRodomDist);
-    //_odom_degr.write(MRodomDegr);
-    //_enc_left.write(MRencL);
-    //_enc_right.write(MRencR);
+    _robot_bumpers.write(MRbumpers);
     
 }
 // void Task::errorHook()
@@ -251,18 +249,14 @@ void Task::updateHook()
 // }
 void Task::stopHook()
 {
+    
     TaskBase::stopHook();
     
-    //MRrobot.stopRunning();
     MRrobot->stopRunning();
-    
-    //MRrobot.waitForRunExit();
     MRrobot->waitForRunExit();
     
     // Stop Aria background threads
     Aria::shutdown();
-    // Cleanup and exit Aria
-    Aria::exit(0);
     
     delete MRconnector;
     MRconnector = 0;
@@ -270,13 +264,18 @@ void Task::stopHook()
     delete MRrobot;
     MRrobot = 0;
     
-    cout<<"Aria_Task: Shutdown"<<endl;
+    cout<<"Aria_Task: Stopped"<<endl;
 }
 void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
     
+    // Cleanup and exit Aria
+    Aria::exit(0);
+    
     delete MRparser;
     MRparser = 0;
+    
+    cout<<"Aria_Task: Exit"<<endl;
 }
 

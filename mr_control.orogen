@@ -58,6 +58,7 @@ task_context "Task" do
    output_port "robot_temp", "/AriaTypes/samples/Temperature"
    output_port "robot_odometer", "/AriaTypes/samples/Odometer"
    output_port "robot_encoder", "/AriaTypes/samples/Encoder"
+   output_port "robot_bumpers", "/AriaTypes/samples/Bumpers"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
