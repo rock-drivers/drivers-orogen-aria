@@ -120,9 +120,6 @@ void Task::updateHook()
     base::MotionCommand2D MRmotion;
     bool MRdoResetOdometry = 0;
     
-    AriaTypes::commands::DevicePower MRdeviceOnOff;
-    AriaTypes::commands::DirectCommand2Byte MRdirectCommand;
-    
     // Process Motion Commands
     if (_transrot_vel.read(MRmotion) != RTT::NoData){
     	//return;
@@ -155,37 +152,21 @@ void Task::updateHook()
         }
     }
     
-    // Process De-/Activation of Power-Ports
-    if(_device_power.read(MRdeviceOnOff) != RTT::NoData){
-    
-    	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
-    	MRrobot->lock();
-	MRrobot->com2Bytes(116, MRdeviceOnOff.portnr, MRdeviceOnOff.onoff);
-	MRrobot->unlock();
-    }
-    
-    // Process direct commands to microcontroller
-    if(_direct_command.read(MRdirectCommand) != RTT::NoData){
-    
-    	MRrobot->lock();
-	MRrobot->com2Bytes(MRdirectCommand.cmdnr, MRdirectCommand.highbyte, MRdirectCommand.lowbyte);
-	MRrobot->unlock();
-    }
     
     // Fetch Motion- and Odometer-Data from Robot, as well as miscellaneous Data
     //base::Pose MRpose;
     base::samples::RigidBodyState MRpose;
     //base::MotionCommand2D MRvel;
-    AriaTypes::samples::Velocity MRvel;
+    AriaType::samples::Velocity MRvel;
     //double MRbatteryLevel = 0;
-    AriaTypes::samples::BatteryLevel MRbatteryLevel;
+    AriaType::samples::BatteryLevel MRbatteryLevel;
     //double MRtemperature = 0;
-    AriaTypes::samples::Temperature MRtemperature;
+    AriaType::samples::Temperature MRtemperature;
     //double MRcompass = 0;
-    AriaTypes::samples::CompassHeading MRcompass;
+    AriaType::samples::CompassHeading MRcompass;
     
-    AriaTypes::samples::Odometer MRodom;
-    AriaTypes::samples::Encoder MRenc;
+    AriaType::samples::Odometer MRodom;
+    AriaType::samples::Encoder MRenc;
     
     //double MRodomDist = 0, MRodomDegr = 0;
     //long int MRencL = 0, MRencR = 0;
@@ -195,10 +176,8 @@ void Task::updateHook()
     
     // Position
     MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
-    MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ()); // rad
-    
-    MRpose.velocity = Eigen::Vector3d(MRrobot->getVel(), 0, 0); // m/s
-    MRpose.angular_velocity = Eigen::Vector3d(MRrobot->getRotVel() * M_PI/180, 0, 0); // rad/s
+    //MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh(), Eigen::Vector3d::UnitZ());
+    MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ());
     
     cout<<"Aria_Task: Theta: "<<MRrobot->getTh()<<"°"<<endl;
     cout<<"Aria_Task: Yaw "<<MRpose.getYaw()<<", Pitch "<<MRpose.getPitch()<<", Roll "<<MRpose.getRoll()<<endl;
@@ -206,6 +185,7 @@ void Task::updateHook()
     // Velocity
     MRvel.velTransRot.translation = MRrobot->getVel(); // in mm/s
     MRvel.velTransRot.rotation = MRrobot->getRotVel(); // in deg/s
+    
     MRvel.time = base::Time::now();
     
     // Battery, Temperature, Compass

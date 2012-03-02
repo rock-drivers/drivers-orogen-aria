@@ -6,7 +6,7 @@
 #include <base/time.h>
 #include <base/motion_command.h>
 
-namespace AriaTypes
+namespace AriaType
 {
 // Commands to be send to Robot
 namespace commands
@@ -15,21 +15,7 @@ namespace commands
 	{
 		double velLeft;
 		double velRight;
-	};
-	
-	// De-/Activate Power-Port on PDB of SeekurJr (command 116)
-	struct DevicePower
-	{
-		unsigned char portnr; // 0-12 accprding to PDB of SeekurJr
-		bool onoff; // true=on, false=off
-	};
-	
-	// Sending direct commands via ArRobot::com2Bytes(cmdnr, highbyte, lowbyte)
-	struct DirectCommand2Byte
-	{
-		unsigned char cmdnr;
-		char highbyte;
-		char lowbyte;
+		base::Time time;
 	};
 }
 
