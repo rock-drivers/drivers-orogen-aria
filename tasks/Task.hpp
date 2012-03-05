@@ -32,6 +32,14 @@ namespace mr_control {
         ArRobot *MRrobot;
         ArArgumentParser *MRparser;
         ArRobotConnector *MRconnector;
+        
+        // Operation Methods
+        void controlPDB(boost::int32_t portNr, bool onoff);
+        void directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd2byte);
+        void lrVel(double left, double right);
+        void resetOdometer();
+        void transrotVel(::base::MotionCommand2D const & velocities);
+        void transrotVel2(double translational, double rotational);
 
 
     public:

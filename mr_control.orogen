@@ -32,9 +32,9 @@ task_context "Task" do
    # input is connected to an output or not.
    input_port "transrot_vel", "/base/MotionCommand2D"
    input_port "leftright_vel", "/AriaTypes/commands/Velocity2"
-   input_port "reset_odometry", "bool"
-   input_port "device_power", "/AriaTypes/commands/DevicePower"
-   input_port "direct_command", "/AriaTypes/commands/DirectCommand2Byte"
+#   input_port "reset_odometry", "bool"
+#   input_port "device_power", "/AriaTypes/commands/DevicePower"
+#   input_port "direct_command", "/AriaTypes/commands/DirectCommand2Byte"
 
    # An output port, i.e. an object to which the component pushes data so that
    # it is transmitted to other components' inputs
@@ -53,6 +53,7 @@ task_context "Task" do
 #   output_port "enc_right", "int"
    
    output_port "robot_motion", "/AriaTypes/samples/Velocity"
+   output_port "robot_motion2", "/AriaTypes/samples/Velocity2"
    output_port "robot_compass", "/AriaTypes/samples/CompassHeading"
    output_port "robot_battery", "/AriaTypes/samples/BatteryLevel"
    output_port "robot_temp", "/AriaTypes/samples/Temperature"
@@ -63,6 +64,31 @@ task_context "Task" do
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
    # port_driven "transrot_vel"
+   
+   # Operations:
+   # Reset Odometer
+   operation('resetOdometer')
+   	
+   # Turn on/off Port 'portNr' of the PDB
+   operation('controlPDB').
+   	argument('portNr', 'int').
+   	argument('onoff', 'bool')
+   	
+   # Send direct Command
+   operation('directCommand').
+   	argument('MRcmd2byte', '/AriaTypes/commands/DirectCommand2Byte')
+   	
+   # Set translational and rotational Velocity
+   operation('transrotVel').
+   	argument('velocities', '/base/MotionCommand2D')
+   operation('transrotVel2').
+   	argument('translational', 'double'). # in m/s
+   	argument('rotational', 'double') #in rad/s
+   	
+   # Set Velocity for left and right Wheels
+   operation('lrVel').
+   	argument('left', 'double').
+   	argument('right', 'double')
 end
 
 

@@ -42,6 +42,13 @@ namespace samples
 		base::Time time;
 	};
 	
+	struct Velocity2
+	{
+		double velLeft;
+		double velRight;
+		base::Time time;
+	};
+	
 	struct BatteryLevel
 	{
 		double battery;

@@ -87,6 +87,10 @@ bool Task::startHook()
     
     cout<<"Aria_Task: Thread started"<<endl;
     
+    //MRrobot->lock();
+    //MRrobot->com2Bytes(116, 4, 1);
+    //MRrobot->unlock();
+    
     return true;
 }
 void Task::updateHook()
@@ -115,6 +119,8 @@ void Task::updateHook()
         //cout<<"Aria_Task: Thread unlocked"<<endl;
     }
     
+    /*** Replaced by Operation
+    
     // Process Reset of Odometer
     if(_reset_odometry.read(MRdoResetOdometry) != RTT::NoData){
     
@@ -130,6 +136,8 @@ void Task::updateHook()
     // Process De-/Activation of Power-Ports
     if(_device_power.read(MRdeviceOnOff) != RTT::NoData){
     
+    	cout<<"Aria_Task: Setting Port "<<int(MRdeviceOnOff.portnr)<<" to "<<MRdeviceOnOff.onoff<<endl;
+    	
     	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
     	MRrobot->lock();
 	MRrobot->com2Bytes(116, MRdeviceOnOff.portnr, MRdeviceOnOff.onoff);
@@ -144,9 +152,12 @@ void Task::updateHook()
 	MRrobot->unlock();
     }
     
+    */
+    
     // Fetch Motion- and Odometer-Data from Robot, as well as miscellaneous Data
     base::samples::RigidBodyState MRpose;
     AriaTypes::samples::Velocity MRvel;
+    AriaTypes::samples::Velocity2 MRvel2;
     AriaTypes::samples::BatteryLevel MRbatteryLevel;
     AriaTypes::samples::Temperature MRtemperature;
     AriaTypes::samples::CompassHeading MRcompass;
@@ -174,6 +185,11 @@ void Task::updateHook()
     MRvel.velTransRot.translation = MRrobot->getVel(); // in mm/s
     MRvel.velTransRot.rotation = MRrobot->getRotVel(); // in deg/s
     
+    // Velocity2 (left, right)
+    MRvel2.time = base::Time::now();
+    MRvel2.velLeft = MRrobot->getLeftVel(); // in mm/s
+    MRvel2.velRight = MRrobot->getRightVel(); // in mm/s
+    
     // Battery
     MRbatteryLevel.time = base::Time::now();
     MRbatteryLevel.battery = MRrobot->getStateOfCharge();
@@ -194,7 +210,7 @@ void Task::updateHook()
     MRrobot->requestEncoderPackets();
     MRenc.encLeft = MRrobot->getLeftEncoder();
     MRenc.encRight = MRrobot->getRightEncoder();
-    cout<<"Aria_Task: Encoder L: "<<MRrobot->getLeftEncoder()<<", R: "<<MRrobot->getRightEncoder()<<endl;
+    //cout<<"Aria_Task: Encoder L: "<<MRrobot->getLeftEncoder()<<", R: "<<MRrobot->getRightEncoder()<<endl;
     MRrobot->stopEncoderPackets();
     
     // Bumpers
@@ -210,31 +226,37 @@ void Task::updateHook()
     MRrobot->unlock();
     
     bool frbump[MRbumpers.nrFront];
+    bool rebump[MRbumpers.nrRear];
     int bit = 0;
+    int i = 0;
     
-    for(int i = 0, bit = 2; i < MRbumpers.nrFront; i++, bit *= 2)
-    {
+    for(i = 0, bit = 2; i < MRbumpers.nrFront; i++, bit *= 2)
     	frbump[i] = (MRbumpers.front & bit);
-    	/*
-        if (MRbumpers.front & bit)
-            printf("%6s", "trig");
-	else
-	    printf("%6s", "clear");
-	}
-	*/
-    }
     
-    cout<<"Aria_Task: Front Bumpers: ";
+    for (i = 0, bit = 2; i < MRbumpers.nrRear; i++, bit *= 2)
+    	rebump[i] = (MRbumpers.rear & bit);
+    
+    /*
+    //cout<<"Aria_Task: Front Bumpers: ";
     for(int i=0; i<MRbumpers.nrFront; i++)
     {
     	cout<<frbump[i]<<" ";
     }
     cout<<endl;
     
+    //cout<<"Aria_Task: Rear Bumpers: ";
+    for(int i=0; i<MRbumpers.nrRear; i++)
+    {
+    	cout<<rebump[i]<<" ";
+    }
+    cout<<endl;
+    */
+    
     
     // Distribute Messages
     _robot_pose.write(MRpose);
     _robot_motion.write(MRvel);
+    _robot_motion2.write(MRvel2);
     _robot_battery.write(MRbatteryLevel);
     _robot_temp.write(MRtemperature);
     _robot_compass.write(MRcompass);
@@ -277,5 +299,71 @@ void Task::cleanupHook()
     MRparser = 0;
     
     cout<<"Aria_Task: Exit"<<endl;
+}
+
+// Operation Methods
+
+// Set the translational and rotational Velocities
+void Task::transrotVel(::base::MotionCommand2D const & velocities)
+{
+	cout<<"Aria_Task: TranslVel "<<velocities.translation<<" m/s, RotVel "<<velocities.rotation<<" rad/s"<<endl;
+        
+        MRrobot->lock();
+        MRrobot->setVel(velocities.translation * 1000);
+        MRrobot->setRotVel(velocities.rotation * 180 / M_PI);
+        MRrobot->unlock();
+}
+
+void Task::transrotVel2(double translational, double rotational)
+{
+	cout<<"Aria_Task: TranslVel "<<translational<<" m/s, RotVel "<<rotational<<" rad/s"<<endl;
+	
+	MRrobot->lock();
+        MRrobot->setVel(translational * 1000);
+        MRrobot->setRotVel(rotational * 180 / M_PI);
+        MRrobot->unlock();
+}
+
+// Set Velocities for left and right Wheels
+void Task::lrVel(double left, double right)
+{
+	cout<<"Aria_Task: Velocity L: "<<left<<" m/s, R: "<<right<<" m/s"<<endl;
+	
+	MRrobot->lock();
+	MRrobot->setVel2(left*1000, right*1000);
+	MRrobot->unlock();
+}
+
+// Turn on/off the PDB
+void Task::controlPDB(boost::int32_t portNr, bool onoff)
+{
+	cout<<"Aria_Task: Turning Port "<<portNr<<" ";
+	onoff ? cout<<"ON":cout<<"OFF";
+	cout<<endl;
+    	
+    	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
+    	MRrobot->lock();
+	MRrobot->com2Bytes(116, portNr, onoff);
+	MRrobot->unlock();
+}
+
+// Send a direct serial Command to Robot
+void Task::directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd2byte)
+{
+	cout<<"Aria_Task: Direct Command "<<MRcmd2byte.cmdnr<<" with HB: "<<MRcmd2byte.highbyte<<" LB: "<<MRcmd2byte.lowbyte<<endl;
+	
+	MRrobot->lock();
+	MRrobot->com2Bytes(MRcmd2byte.cmdnr, MRcmd2byte.highbyte, MRcmd2byte.lowbyte);
+	MRrobot->unlock();
+}
+
+// Reset the Odometer
+void Task::resetOdometer()
+{
+    cout<<"Aria_Task: Resetting Odometer"<<endl;
+
+    MRrobot->lock();
+    MRrobot->resetTripOdometer();
+    MRrobot->unlock();
 }
 
