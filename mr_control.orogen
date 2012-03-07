@@ -23,6 +23,7 @@ task_context "Task" do
    # in the C++ code with # _config_value.get() and _config_value.set(new_value).
    # needs_configuration
    property "serial_port", "/std/string", "/dev/ttyS0"
+   property "poweron_boot", "/std/string", "3 6 7 9 10"
 
    # An input port, i.e. an object from which the component gets data from
    # other components' outputs

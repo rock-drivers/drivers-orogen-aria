@@ -1,6 +1,8 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
+#include<base/logging.h>
+#include<boost/tokenizer.hpp>
 
 using namespace mr_control;
 
@@ -40,16 +42,33 @@ bool Task::configureHook()
     MRarguments->add("-robotPort");
     MRarguments->add(_serial_port.get().c_str());
     
-    cout<<"Aria_Task: List of Parameters: "<<MRarguments->getFullString()<<endl;
+    // vector<int> PowerPortsON
+    boost::tokenizer<> tokPortList(_poweron_boot.get());
+    std::string nrstr;
+    int portnr;
+    for(boost::tokenizer<>::iterator tokit=tokPortList.begin();
+    	tokit!=tokPortList.end(); ++tokit){
+    	//cout<<"Port: "<<*tokit<<endl;
+    	nrstr = *tokit;
+    	portnr = atoi(nrstr.c_str());
+    	//cout<<"Port: "<<portnr<<endl;
+    	//PowerPortsON.push_back(portnr);
+    	PowerPortsON.push_back(atoi(nrstr.c_str()));
+    }
+    
+    //cout<<"Aria_Task: List of Parameters: "<<MRarguments->getFullString()<<endl;
+    LOG_INFO("Aria: List of Parameters: %s", MRarguments->getFullString());
     
     MRparser = new ArArgumentParser(MRarguments);
     MRparser->loadDefaultArguments();
     MRparser->log();
     
     if(!MRparser->checkHelpAndWarnUnparsed())
-        cout<<"Aria_Task: Unparsed Arguments found"<<endl;
+    	LOG_WARN("Aria: Unparsed Arguments found");
+        //cout<<"Aria_Task: Unparsed Arguments found"<<endl;
         
-    cout<<"Aria_Task: Used Parameters "<<*MRparser->getArgv()<<endl;
+    //cout<<"Aria_Task: Used Parameters "<<*MRparser->getArgv()<<endl;
+    LOG_INFO("Aria: Used Parameters: %s",*MRparser->getArgv());
     
     delete MRarguments;
     MRarguments = 0;
@@ -64,7 +83,8 @@ bool Task::startHook()
     // Initialise Aria
     Aria::init();
     
-    cout<<"Aria_Task: Initialised"<<endl;
+    //cout<<"Aria_Task: Initialised"<<endl;
+    LOG_INFO("Aria: Initialised.")
     
     MRrobot = new ArRobot("", true, false);
     MRconnector = new ArRobotConnector(MRparser, MRrobot);
@@ -73,23 +93,32 @@ bool Task::startHook()
     
     // Connect to Robot or Simulator
     if (!MRconnector->connectRobot()){
-        cout<<"Aria_Task: Could not connect!"<<endl;
+        //cout<<"Aria_Task: Could not connect!"<<endl;
+        LOG_ERROR("Aria: Could not connect!");
         ArLog::log(ArLog::Terse, "Error, could not connect to robot.");
         Aria::logOptions();
         Aria::exit(1);
         return false;
     }
-    else
-        cout<<"Aria_Task: Robot connected"<<endl;
+    else{
+        //cout<<"Aria_Task: Robot connected"<<endl;
+        LOG_INFO("Aria: Robot connected.")
+    }
     
     // Open new thread for processing cycle
     MRrobot->runAsync(false);
     
-    cout<<"Aria_Task: Thread started"<<endl;
+    //cout<<"Aria_Task: Thread started"<<endl;
+    LOG_INFO("Aria: Thread started.")
     
-    //MRrobot->lock();
-    //MRrobot->com2Bytes(116, 4, 1);
-    //MRrobot->unlock();
+    //Turn ON default Power-Ports
+    for(vector<int>::iterator portsit=PowerPortsON.begin(); portsit!=PowerPortsON.end(); ++portsit){
+        //cout<<"Port: "<<*portsit<<endl;
+        controlPDB(*portsit, 1);
+        //MRrobot->lock();
+        //MRrobot->com2Bytes(116, *portsit, 1);
+        //MRrobot->unlock();
+    }
     
     return true;
 }
@@ -286,7 +315,8 @@ void Task::stopHook()
     delete MRrobot;
     MRrobot = 0;
     
-    cout<<"Aria_Task: Stopped"<<endl;
+    //cout<<"Aria_Task: Stopped"<<endl;
+    LOG_INFO("Aria: Stopped.");
 }
 void Task::cleanupHook()
 {
@@ -298,7 +328,8 @@ void Task::cleanupHook()
     delete MRparser;
     MRparser = 0;
     
-    cout<<"Aria_Task: Exit"<<endl;
+    //cout<<"Aria_Task: Exit"<<endl;
+    LOG_INFO("Aria: Exit.");
 }
 
 // Operation Methods
@@ -337,9 +368,15 @@ void Task::lrVel(double left, double right)
 // Turn on/off the PDB
 void Task::controlPDB(boost::int32_t portNr, bool onoff)
 {
-	cout<<"Aria_Task: Turning Port "<<portNr<<" ";
-	onoff ? cout<<"ON":cout<<"OFF";
-	cout<<endl;
+        //std::stringstream loginfostr;
+	//cout<<"Aria_Task: Turning Port "<<portNr<<" ";
+	//onoff ? cout<<"ON":cout<<"OFF";
+	//cout<<endl;
+	
+	std::string onoffstr;
+	onoff ? onoffstr="ON":onoffstr="OFF";
+	
+	LOG_INFO("Turning Port %i %s",portNr, onoffstr.c_str());
     	
     	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
     	MRrobot->lock();
