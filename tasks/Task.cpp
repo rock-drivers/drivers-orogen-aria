@@ -85,6 +85,8 @@ bool Task::startHook()
     
     //cout<<"Aria_Task: Initialised"<<endl;
     LOG_INFO("Aria: Initialised.")
+
+   ArLog::init(ArLog::None, ArLog::Normal);
     
     MRrobot = new ArRobot("", true, false);
     MRconnector = new ArRobotConnector(MRparser, MRrobot);
@@ -265,21 +267,21 @@ void Task::updateHook()
     for (i = 0, bit = 2; i < MRbumpers.nrRear; i++, bit *= 2)
     	rebump[i] = (MRbumpers.rear & bit);
     
-    /*
-    //cout<<"Aria_Task: Front Bumpers: ";
+    
+    cout<<"Aria_Task: Front Bumpers: ";
     for(int i=0; i<MRbumpers.nrFront; i++)
     {
     	cout<<frbump[i]<<" ";
     }
     cout<<endl;
     
-    //cout<<"Aria_Task: Rear Bumpers: ";
+    cout<<"Aria_Task: Rear Bumpers: ";
     for(int i=0; i<MRbumpers.nrRear; i++)
     {
     	cout<<rebump[i]<<" ";
     }
     cout<<endl;
-    */
+    
     
     
     // Distribute Messages
