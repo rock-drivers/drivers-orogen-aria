@@ -21,7 +21,8 @@ using_library "aria"
 task_context "Task" do
    # A configuration property (here, a std::string). Its value can be retrieved
    # in the C++ code with # _config_value.get() and _config_value.set(new_value).
-   # needs_configuration
+   
+   needs_configuration
    property "serial_port", "/std/string", "/dev/ttyS0"
    property "poweron_boot", "/std/string"
 
@@ -33,9 +34,10 @@ task_context "Task" do
    # input is connected to an output or not.
    input_port "transrot_vel", "/base/MotionCommand2D"
    input_port "leftright_vel", "/AriaTypes/commands/Velocity2"
-#   input_port "reset_odometry", "bool"
-#   input_port "device_power", "/AriaTypes/commands/DevicePower"
-#   input_port "direct_command", "/AriaTypes/commands/DirectCommand2Byte"
+   
+   # Atomic Actions
+   input_port "aa_transl_vel", "double"
+   input_port "aa_rot_vel", "double"
 
    # An output port, i.e. an object to which the component pushes data so that
    # it is transmitted to other components' inputs
@@ -43,16 +45,6 @@ task_context "Task" do
    # Data can be written using _output.write(value). _output.connected() returns
    # if this output is connected to an input or not.
    output_port "robot_pose", "/base/samples/RigidBodyState"
-
-#   output_port "robot_motion", "/base/MotionCommand2D"
-#   output_port "robot_compass", "double"
-#   output_port "robot_battery", "double"
-#   output_port "robot_temp", "double"
-#   output_port "odom_dist", "double"
-#   output_port "odom_degr", "double"
-#   output_port "enc_left", "int"
-#   output_port "enc_right", "int"
-   
    output_port "robot_motion", "/AriaTypes/samples/Velocity"
    output_port "robot_motion2", "/AriaTypes/samples/Velocity2"
    output_port "robot_compass", "/AriaTypes/samples/CompassHeading"
@@ -61,12 +53,14 @@ task_context "Task" do
    output_port "robot_odometer", "/AriaTypes/samples/Odometer"
    output_port "robot_encoder", "/AriaTypes/samples/Encoder"
    output_port "robot_bumpers", "/AriaTypes/samples/Bumpers"
+#   output_port "robot_bumpers_front", "std/vector<bool>"
+#   output_port "robot_bumpers_rear", "std/vector<bool>"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
    # port_driven "transrot_vel"
    
-   # Operations:
+   ## Operations:
    # Reset Odometer
    operation('resetOdometer')
    	

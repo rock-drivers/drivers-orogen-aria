@@ -6,19 +6,19 @@
 
 using namespace mr_control;
 
-Task::Task(std::string const& name, TaskCore::TaskState initial_state)
-    : TaskBase(name, initial_state)
-//Task::Task(std::string const& name) //needs_configuration
-//    : TaskBase(name)
-    , MRconnector(0), MRrobot(0)
+//Task::Task(std::string const& name, TaskCore::TaskState initial_state)
+//    : TaskBase(name, initial_state)
+Task::Task(std::string const& name) //needs_configuration
+    : TaskBase(name)
+//    , MRconnector(0), MRrobot(0)
 {
 }
 
-Task::Task(std::string const& name, RTT::ExecutionEngine* engine, TaskCore::TaskState initial_state)
-    : TaskBase(name, engine, initial_state)
-//Task::Task(std::string const& name, RTT::ExecutionEngine* engine) //needs_configuration
-//    : TaskBase(name, engine)
-    , MRconnector(0), MRrobot(0)
+//Task::Task(std::string const& name, RTT::ExecutionEngine* engine, TaskCore::TaskState initial_state)
+//    : TaskBase(name, engine, initial_state)
+Task::Task(std::string const& name, RTT::ExecutionEngine* engine) //needs_configuration
+    : TaskBase(name, engine)
+//    , MRconnector(0), MRrobot(0)
 {
 }
 
@@ -86,7 +86,7 @@ bool Task::startHook()
     //cout<<"Aria_Task: Initialised"<<endl;
     LOG_INFO("Aria: Initialised.")
 
-   ArLog::init(ArLog::None, ArLog::Normal);
+    ArLog::init(ArLog::None, ArLog::Normal);
     
     MRrobot = new ArRobot("", true, false);
     MRconnector = new ArRobotConnector(MRparser, MRrobot);
@@ -117,9 +117,6 @@ bool Task::startHook()
     for(vector<int>::iterator portsit=PowerPortsON.begin(); portsit!=PowerPortsON.end(); ++portsit){
         //cout<<"Port: "<<*portsit<<endl;
         controlPDB(*portsit, 1);
-        //MRrobot->lock();
-        //MRrobot->com2Bytes(116, *portsit, 1);
-        //MRrobot->unlock();
     }
     
     return true;
@@ -130,24 +127,38 @@ void Task::updateHook()
     	
     base::MotionCommand2D MRmotion;
     bool MRdoResetOdometry = 0;
+    double MRtransVel, MRrotVel;
     
     AriaTypes::commands::DevicePower MRdeviceOnOff;
     AriaTypes::commands::DirectCommand2Byte MRdirectCommand;
     
     // Process Motion Commands
+    // MotionCommand2D
     if (_transrot_vel.read(MRmotion) != RTT::NoData){
     
         //cout<<"Aria_Task: Command received"<<endl;
         cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<" m/s, RotVel "<<MRmotion.rotation<<" rad/s"<<endl;
         
         MRrobot->lock();
-        //cout<<"Aria_Task: Thread locked"<<endl;
         
         MRrobot->setVel(MRmotion.translation * 1000);
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
         
         MRrobot->unlock();
-        //cout<<"Aria_Task: Thread unlocked"<<endl;
+    }
+    
+    // AA: goForward/goBackward
+    if (_aa_transl_vel.read(MRtransVel) != RTT::NoData){
+        MRrobot->lock();
+        MRrobot->setVel(MRtransVel * 1000);
+        MRrobot->unlock();
+    }
+    
+    // AA: turnLeft/turnRight
+    if (_aa_rot_vel.read(MRrotVel) != RTT::NoData){
+        MRrobot->lock();
+        MRrobot->setRotVel(MRrotVel * 180 / M_PI);        
+        MRrobot->unlock();
     }
     
     /*** Replaced by Operation
@@ -197,6 +208,9 @@ void Task::updateHook()
     AriaTypes::samples::Encoder MRenc;
     
     AriaTypes::samples::Bumpers MRbumpers;
+    
+    vector<bool> MRbumpersFront;
+    vector<bool> MRbumpersRear;
     
     
     MRrobot->lock();
@@ -253,6 +267,9 @@ void Task::updateHook()
     MRbumpers.front = ((MRrobot->getStallValue() & 0xff00) >> 8);
     MRbumpers.rear = ((MRrobot->getStallValue() & 0xff));
     
+    int maskFront = ((MRrobot->getStallValue() & 0xff00) >> 8);
+    int maskRear = ((MRrobot->getStallValue() & 0xff));
+    
     
     MRrobot->unlock();
     
@@ -261,11 +278,15 @@ void Task::updateHook()
     int bit = 0;
     int i = 0;
     
-    for(i = 0, bit = 2; i < MRbumpers.nrFront; i++, bit *= 2)
+    for(i = 0, bit = 2; i < MRrobot->getNumFrontBumpers(); i++, bit *= 2){
     	frbump[i] = (MRbumpers.front & bit);
+    	MRbumpers.bumpersFront.push_back( (maskFront & bit) );
+    }
     
-    for (i = 0, bit = 2; i < MRbumpers.nrRear; i++, bit *= 2)
+    for (i = 0, bit = 2; i < MRrobot->getNumRearBumpers(); i++, bit *= 2){
     	rebump[i] = (MRbumpers.rear & bit);
+    	MRbumpers.bumpersRear.push_back( (maskRear & bit) );
+    }
     
     
     cout<<"Aria_Task: Front Bumpers: ";
@@ -325,7 +346,7 @@ void Task::cleanupHook()
     TaskBase::cleanupHook();
     
     // Cleanup and exit Aria
-    Aria::exit(0);
+    //Aria::exit(0);
     
     delete MRparser;
     MRparser = 0;

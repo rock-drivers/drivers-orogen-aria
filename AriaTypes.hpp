@@ -2,6 +2,7 @@
 #define _ARIATYPE_HPP_
 
 #include <iostream>
+#include<vector>
 
 #include <base/time.h>
 #include <base/motion_command.h>
@@ -90,6 +91,9 @@ namespace samples
 		// for an Example how to read out these values.
 		int front;
 		int rear;
+		
+		std::vector<bool> bumpersFront;
+		std::vector<bool> bumpersRear;
 		
 		base::Time time;
 	};
