@@ -86,7 +86,8 @@ bool Task::startHook()
     //cout<<"Aria_Task: Initialised"<<endl;
     LOG_INFO("Aria: Initialised.")
 
-    ArLog::init(ArLog::None, ArLog::Normal);
+    //ArLog::init(ArLog::None, ArLog::Normal);
+    ArLog::init(ArLog::File, ArLog::Normal, "MrControl_AriaLog.log", false, true);
     
     MRrobot = new ArRobot("", true, false);
     MRconnector = new ArRobotConnector(MRparser, MRrobot);
@@ -137,7 +138,8 @@ void Task::updateHook()
     if (_transrot_vel.read(MRmotion) != RTT::NoData){
     
         //cout<<"Aria_Task: Command received"<<endl;
-        cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<" m/s, RotVel "<<MRmotion.rotation<<" rad/s"<<endl;
+        //cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<" m/s, RotVel "<<MRmotion.rotation<<" rad/s"<<endl;
+        LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
         
         MRrobot->lock();
         
@@ -160,41 +162,6 @@ void Task::updateHook()
         MRrobot->setRotVel(MRrotVel * 180 / M_PI);        
         MRrobot->unlock();
     }
-    
-    /*** Replaced by Operation
-    
-    // Process Reset of Odometer
-    if(_reset_odometry.read(MRdoResetOdometry) != RTT::NoData){
-    
-        if( MRdoResetOdometry ){
-            cout<<"Aria_Task: Resetting Odometer"<<endl;
-        
-            MRrobot->lock();
-            MRrobot->resetTripOdometer();
-            MRrobot->unlock();
-        }
-    }
-    
-    // Process De-/Activation of Power-Ports
-    if(_device_power.read(MRdeviceOnOff) != RTT::NoData){
-    
-    	cout<<"Aria_Task: Setting Port "<<int(MRdeviceOnOff.portnr)<<" to "<<MRdeviceOnOff.onoff<<endl;
-    	
-    	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
-    	MRrobot->lock();
-	MRrobot->com2Bytes(116, MRdeviceOnOff.portnr, MRdeviceOnOff.onoff);
-	MRrobot->unlock();
-    }
-    
-    // Process direct commands to microcontroller
-    if(_direct_command.read(MRdirectCommand) != RTT::NoData){
-    
-    	MRrobot->lock();
-	MRrobot->com2Bytes(MRdirectCommand.cmdnr, MRdirectCommand.highbyte, MRdirectCommand.lowbyte);
-	MRrobot->unlock();
-    }
-    
-    */
     
     // Fetch Motion- and Odometer-Data from Robot, as well as miscellaneous Data
     base::samples::RigidBodyState MRpose;
@@ -289,19 +256,19 @@ void Task::updateHook()
     }
     
     
-    cout<<"Aria_Task: Front Bumpers: ";
-    for(int i=0; i<MRbumpers.nrFront; i++)
-    {
-    	cout<<frbump[i]<<" ";
-    }
-    cout<<endl;
+//    cout<<"Aria_Task: Front Bumpers: ";
+//    for(int i=0; i<MRbumpers.nrFront; i++)
+//    {
+//    	cout<<frbump[i]<<" ";
+//    }
+//    cout<<endl;
     
-    cout<<"Aria_Task: Rear Bumpers: ";
-    for(int i=0; i<MRbumpers.nrRear; i++)
-    {
-    	cout<<rebump[i]<<" ";
-    }
-    cout<<endl;
+//    cout<<"Aria_Task: Rear Bumpers: ";
+//    for(int i=0; i<MRbumpers.nrRear; i++)
+//    {
+//    	cout<<rebump[i]<<" ";
+//    }
+//    cout<<endl;
     
     
     
@@ -360,7 +327,8 @@ void Task::cleanupHook()
 // Set the translational and rotational Velocities
 void Task::transrotVel(::base::MotionCommand2D const & velocities)
 {
-	cout<<"Aria_Task: TranslVel "<<velocities.translation<<" m/s, RotVel "<<velocities.rotation<<" rad/s"<<endl;
+	//cout<<"Aria_Task: TranslVel "<<velocities.translation<<" m/s, RotVel "<<velocities.rotation<<" rad/s"<<endl;
+	LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", velocities.translation, velocities.rotation);
         
         MRrobot->lock();
         MRrobot->setVel(velocities.translation * 1000);
@@ -370,7 +338,8 @@ void Task::transrotVel(::base::MotionCommand2D const & velocities)
 
 void Task::transrotVel2(double translational, double rotational)
 {
-	cout<<"Aria_Task: TranslVel "<<translational<<" m/s, RotVel "<<rotational<<" rad/s"<<endl;
+	//cout<<"Aria_Task: TranslVel "<<translational<<" m/s, RotVel "<<rotational<<" rad/s"<<endl;
+	LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", translational, rotational);
 	
 	MRrobot->lock();
         MRrobot->setVel(translational * 1000);
@@ -381,7 +350,8 @@ void Task::transrotVel2(double translational, double rotational)
 // Set Velocities for left and right Wheels
 void Task::lrVel(double left, double right)
 {
-	cout<<"Aria_Task: Velocity L: "<<left<<" m/s, R: "<<right<<" m/s"<<endl;
+	//cout<<"Aria_Task: Velocity L: "<<left<<" m/s, R: "<<right<<" m/s"<<endl;
+	LOG_DEBUG("Aria: Velocity L: %.3f m/s, R: .3f m/s", left, right);
 	
 	MRrobot->lock();
 	MRrobot->setVel2(left*1000, right*1000);
@@ -399,7 +369,7 @@ void Task::controlPDB(boost::int32_t portNr, bool onoff)
 	std::string onoffstr;
 	onoff ? onoffstr="ON":onoffstr="OFF";
 	
-	LOG_INFO("Turning Port %i %s",portNr, onoffstr.c_str());
+	LOG_INFO("Aria: Turning Port %i %s",portNr, onoffstr.c_str());
     	
     	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
     	MRrobot->lock();
@@ -410,7 +380,8 @@ void Task::controlPDB(boost::int32_t portNr, bool onoff)
 // Send a direct serial Command to Robot
 void Task::directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd2byte)
 {
-	cout<<"Aria_Task: Direct Command "<<MRcmd2byte.cmdnr<<" with HB: "<<MRcmd2byte.highbyte<<" LB: "<<MRcmd2byte.lowbyte<<endl;
+	//cout<<"Aria_Task: Direct Command "<<MRcmd2byte.cmdnr<<" with HB: "<<MRcmd2byte.highbyte<<" LB: "<<MRcmd2byte.lowbyte<<endl;
+	LOG_INFO("Aria: Direct Command %i with HB: %i LB: %i", MRcmd2byte.cmdnr, MRcmd2byte.highbyte, MRcmd2byte.lowbyte);
 	
 	MRrobot->lock();
 	MRrobot->com2Bytes(MRcmd2byte.cmdnr, MRcmd2byte.highbyte, MRcmd2byte.lowbyte);
@@ -420,7 +391,8 @@ void Task::directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd
 // Reset the Odometer
 void Task::resetOdometer()
 {
-    cout<<"Aria_Task: Resetting Odometer"<<endl;
+    //cout<<"Aria_Task: Resetting Odometer"<<endl;
+    LOG_INFO("Aria: Resetting Odometer");
 
     MRrobot->lock();
     MRrobot->resetTripOdometer();
