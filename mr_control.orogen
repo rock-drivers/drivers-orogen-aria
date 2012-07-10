@@ -6,18 +6,6 @@ import_types_from "base"
 import_types_from "AriaTypes.hpp"
 using_library "aria"
 
-# If new data types need to be defined, they have to be put in a separate C++
-# header, and this header will be loaded here
-# import_types_from "mr_controlType.hpp"
-
-# If the component/deployments use data types that are defined in other oroGen
-# projects, these projects should be imported there as well.
-# import_types_from "base"
-
-# Declare a new task context (i.e., a component)
-#
-# The corresponding C++ class can be edited in tasks/Task.hpp and
-# tasks/Task.cpp, and will be put in the mr_control namespace.
 task_context "Task" do
    # A configuration property (here, a std::string). Its value can be retrieved
    # in the C++ code with # _config_value.get() and _config_value.set(new_value).
@@ -53,8 +41,6 @@ task_context "Task" do
    output_port "robot_odometer", "/AriaTypes/samples/Odometer"
    output_port "robot_encoder", "/AriaTypes/samples/Encoder"
    output_port "robot_bumpers", "/AriaTypes/samples/Bumpers"
-#   output_port "robot_bumpers_front", "std/vector<bool>"
-#   output_port "robot_bumpers_rear", "std/vector<bool>"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
@@ -84,17 +70,6 @@ task_context "Task" do
    operation('lrVel').
    	argument('left', 'double').
    	argument('right', 'double')
-end
-
-
-# Declares a deployment, i.e. an actual executable that contains various tasks.
-deployment "mr_control_test" do
-    # This is a test deployment that should not be installed
-    do_not_install
-
-    # Declares it as periodic, with a period of 100ms
-    task("mr_control", "Task").
-        periodic(0.1)
 end
 
 deployment "robot_control" do

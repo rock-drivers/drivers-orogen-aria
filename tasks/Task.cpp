@@ -1,5 +1,9 @@
-/* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
-
+/**
+ * @author  Christian Rauch <Christian.Rauch@dfki.de>
+ * @version 1.0
+ * @date 10.07.2012 (dd/mm/yyyy)
+ */
+ 
 #include "Task.hpp"
 #include<base/logging.h>
 #include<boost/tokenizer.hpp>
@@ -10,7 +14,6 @@ using namespace mr_control;
 //    : TaskBase(name, initial_state)
 Task::Task(std::string const& name) //needs_configuration
     : TaskBase(name)
-//    , MRconnector(0), MRrobot(0)
 {
 }
 
@@ -18,19 +21,12 @@ Task::Task(std::string const& name) //needs_configuration
 //    : TaskBase(name, engine, initial_state)
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine) //needs_configuration
     : TaskBase(name, engine)
-//    , MRconnector(0), MRrobot(0)
 {
 }
 
 Task::~Task()
 {
 }
-
-
-
-/// The following lines are template definitions for the various state machine
-// hooks defined by Orocos::RTT. See Task.hpp for more detailed
-// documentation about them.
 
 bool Task::configureHook()
 {
@@ -42,32 +38,28 @@ bool Task::configureHook()
     MRarguments->add("-robotPort");
     MRarguments->add(_serial_port.get().c_str());
     
-    // vector<int> PowerPortsON
+    // Use boost tokenizer to read the ports that should turned on by default on
+    // boot. 'poweron_boot' is of type std::string where all values 
+    // (portnumbers) are separated by comma or space.
     boost::tokenizer<> tokPortList(_poweron_boot.get());
     std::string nrstr;
     int portnr;
     for(boost::tokenizer<>::iterator tokit=tokPortList.begin();
     	tokit!=tokPortList.end(); ++tokit){
-    	//cout<<"Port: "<<*tokit<<endl;
     	nrstr = *tokit;
     	portnr = atoi(nrstr.c_str());
-    	//cout<<"Port: "<<portnr<<endl;
-    	//PowerPortsON.push_back(portnr);
     	PowerPortsON.push_back(atoi(nrstr.c_str()));
     }
     
-    //cout<<"Aria_Task: List of Parameters: "<<MRarguments->getFullString()<<endl;
     LOG_INFO("Aria: List of Parameters: %s", MRarguments->getFullString());
     
     MRparser = new ArArgumentParser(MRarguments);
     MRparser->loadDefaultArguments();
-    MRparser->log();
+    //MRparser->log(); //print unprocessed arguments
     
     if(!MRparser->checkHelpAndWarnUnparsed())
     	LOG_WARN("Aria: Unparsed Arguments found");
-        //cout<<"Aria_Task: Unparsed Arguments found"<<endl;
-        
-    //cout<<"Aria_Task: Used Parameters "<<*MRparser->getArgv()<<endl;
+	
     LOG_INFO("Aria: Used Parameters: %s",*MRparser->getArgv());
     
     delete MRarguments;
@@ -79,44 +71,45 @@ bool Task::startHook()
 {
     if (! TaskBase::startHook())
         return false;
-
+    
     // Initialise Aria
     Aria::init();
     
-    //cout<<"Aria_Task: Initialised"<<endl;
     LOG_INFO("Aria: Initialised.")
 
     //ArLog::init(ArLog::None, ArLog::Normal);
-    ArLog::init(ArLog::File, ArLog::Normal, "MrControl_AriaLog.log", false, true);
+    // Verbose Aria-Logging into Logfile "MrControl_AriaLog.log"
+    //ArLog::init(ArLog::File, ArLog::Verbose, "MrControl_AriaLog.log", false, true);
     
+    LOG_DEBUG_S<<"Aria: Creating new ArRobot.";
     MRrobot = new ArRobot("", true, false);
+    LOG_DEBUG_S<<"Aria: Creating new ArRobotConnector.";
     MRconnector = new ArRobotConnector(MRparser, MRrobot);
     
-    //cout<<"Aria: Connector created"<<endl;
-    
     // Connect to Robot or Simulator
-    if (!MRconnector->connectRobot()){
-        //cout<<"Aria_Task: Could not connect!"<<endl;
+    LOG_DEBUG_S<<"Aria: Connecting Robot.";
+    bool connectsuccess = MRconnector->connectRobot(MRrobot);
+    LOG_DEBUG_S<<"Aria: Robot connected? "<<connectsuccess;
+    
+    if (!connectsuccess){
         LOG_ERROR("Aria: Could not connect!");
-        ArLog::log(ArLog::Terse, "Error, could not connect to robot.");
-        Aria::logOptions();
-        Aria::exit(1);
+        ArLog::log(ArLog::Normal, "Error, could not connect to robot.");
+        //Aria::logOptions(); // show parameters
+        //Aria::exit(1);
         return false;
     }
     else{
-        //cout<<"Aria_Task: Robot connected"<<endl;
         LOG_INFO("Aria: Robot connected.")
     }
     
+    LOG_DEBUG_S<<"Aria: Initialising asynchronous Thread.";
+    
     // Open new thread for processing cycle
     MRrobot->runAsync(false);
-    
-    //cout<<"Aria_Task: Thread started"<<endl;
     LOG_INFO("Aria: Thread started.")
     
-    //Turn ON default Power-Ports
+    // Turn ON default Power-Ports
     for(vector<int>::iterator portsit=PowerPortsON.begin(); portsit!=PowerPortsON.end(); ++portsit){
-        //cout<<"Port: "<<*portsit<<endl;
         controlPDB(*portsit, 1);
     }
     
@@ -125,7 +118,8 @@ bool Task::startHook()
 void Task::updateHook()
 {
     TaskBase::updateHook();
-    	
+    
+    // Write Commands to Robot
     base::MotionCommand2D MRmotion;
     bool MRdoResetOdometry = 0;
     double MRtransVel, MRrotVel;
@@ -136,9 +130,6 @@ void Task::updateHook()
     // Process Motion Commands
     // MotionCommand2D
     if (_transrot_vel.read(MRmotion) != RTT::NoData){
-    
-        //cout<<"Aria_Task: Command received"<<endl;
-        //cout<<"Aria_Task: TranslVel "<<MRmotion.translation<<" m/s, RotVel "<<MRmotion.rotation<<" rad/s"<<endl;
         LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
         
         MRrobot->lock();
@@ -163,7 +154,7 @@ void Task::updateHook()
         MRrobot->unlock();
     }
     
-    // Fetch Motion- and Odometer-Data from Robot, as well as miscellaneous Data
+    // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
     AriaTypes::samples::Velocity MRvel;
     AriaTypes::samples::Velocity2 MRvel2;
@@ -176,10 +167,7 @@ void Task::updateHook()
     
     AriaTypes::samples::Bumpers MRbumpers;
     
-    vector<bool> MRbumpersFront;
-    vector<bool> MRbumpersRear;
-    
-    
+    // Lock Robot for Reading
     MRrobot->lock();
     
     // Position
@@ -188,9 +176,6 @@ void Task::updateHook()
     
     MRpose.velocity = Eigen::Vector3d(MRrobot->getVel(), 0, 0); // m/s
     MRpose.angular_velocity = Eigen::Vector3d(MRrobot->getRotVel() * M_PI/180, 0, 0); // rad/s
-    
-    //cout<<"Aria_Task: Theta: "<<MRrobot->getTh()<<"°"<<endl;
-    //cout<<"Aria_Task: Yaw "<<MRpose.getYaw()<<", Pitch "<<MRpose.getPitch()<<", Roll "<<MRpose.getRoll()<<endl;
     
     // Velocity
     MRvel.time = base::Time::now();
@@ -205,9 +190,11 @@ void Task::updateHook()
     // Battery
     MRbatteryLevel.time = base::Time::now();
     MRbatteryLevel.battery = MRrobot->getStateOfCharge();
+    
     // Temperature
     MRtemperature.time = base::Time::now();
     MRtemperature.temp = MRrobot->getTemperature();
+    
     // Compass
     MRcompass.time = base::Time::now();
     MRcompass.heading = MRrobot->getCompass();
@@ -222,7 +209,8 @@ void Task::updateHook()
     MRrobot->requestEncoderPackets();
     MRenc.encLeft = MRrobot->getLeftEncoder();
     MRenc.encRight = MRrobot->getRightEncoder();
-    //cout<<"Aria_Task: Encoder L: "<<MRrobot->getLeftEncoder()<<", R: "<<MRrobot->getRightEncoder()<<endl;
+    // Reading Encoder Values is not yet working
+    //LOG_DEBUG_S<<"Aria: Encoder L: "<<MRrobot->getLeftEncoder()<<", Encoder R: "<<MRrobot->getRightEncoder();
     MRrobot->stopEncoderPackets();
     
     // Bumpers
@@ -237,9 +225,10 @@ void Task::updateHook()
     int maskFront = ((MRrobot->getStallValue() & 0xff00) >> 8);
     int maskRear = ((MRrobot->getStallValue() & 0xff));
     
-    
+    // Sensor Reading finished
     MRrobot->unlock();
     
+    // Write Bumper States per Bumper into Vector
     bool frbump[MRbumpers.nrFront];
     bool rebump[MRbumpers.nrRear];
     int bit = 0;
@@ -256,22 +245,30 @@ void Task::updateHook()
     }
     
     
-//    cout<<"Aria_Task: Front Bumpers: ";
+    // Log Debug Information of front and rear Bumpers
+//    std::stringstream debugstream;
+//    
+//    debugstream<<"Aria: Front Bumpers: ";
 //    for(int i=0; i<MRbumpers.nrFront; i++)
 //    {
-//    	cout<<frbump[i]<<" ";
+//    	debugstream<<frbump[i]<<" ";
 //    }
-//    cout<<endl;
-    
-//    cout<<"Aria_Task: Rear Bumpers: ";
+//    
+//    LOG_DEBUG_S<<debugstream.str();
+//    debugstream.clear();
+//    debugstream.str("");
+//    
+//    
+//    debugstream<<"Aria: Rear Bumpers: ";
 //    for(int i=0; i<MRbumpers.nrRear; i++)
 //    {
-//    	cout<<rebump[i]<<" ";
+//    	debugstream<<rebump[i]<<" ";
 //    }
-//    cout<<endl;
-    
-    
-    
+//    
+//    LOG_DEBUG_S<<debugstream.str();
+//    debugstream.clear();
+//    debugstream.str("");
+        
     // Distribute Messages
     _robot_pose.write(MRpose);
     _robot_motion.write(MRvel);
@@ -305,20 +302,15 @@ void Task::stopHook()
     delete MRrobot;
     MRrobot = 0;
     
-    //cout<<"Aria_Task: Stopped"<<endl;
     LOG_INFO("Aria: Stopped.");
 }
 void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
     
-    // Cleanup and exit Aria
-    //Aria::exit(0);
-    
     delete MRparser;
     MRparser = 0;
     
-    //cout<<"Aria_Task: Exit"<<endl;
     LOG_INFO("Aria: Exit.");
 }
 
@@ -327,7 +319,6 @@ void Task::cleanupHook()
 // Set the translational and rotational Velocities
 void Task::transrotVel(::base::MotionCommand2D const & velocities)
 {
-	//cout<<"Aria_Task: TranslVel "<<velocities.translation<<" m/s, RotVel "<<velocities.rotation<<" rad/s"<<endl;
 	LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", velocities.translation, velocities.rotation);
         
         MRrobot->lock();
@@ -338,7 +329,6 @@ void Task::transrotVel(::base::MotionCommand2D const & velocities)
 
 void Task::transrotVel2(double translational, double rotational)
 {
-	//cout<<"Aria_Task: TranslVel "<<translational<<" m/s, RotVel "<<rotational<<" rad/s"<<endl;
 	LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", translational, rotational);
 	
 	MRrobot->lock();
@@ -350,7 +340,6 @@ void Task::transrotVel2(double translational, double rotational)
 // Set Velocities for left and right Wheels
 void Task::lrVel(double left, double right)
 {
-	//cout<<"Aria_Task: Velocity L: "<<left<<" m/s, R: "<<right<<" m/s"<<endl;
 	LOG_DEBUG("Aria: Velocity L: %.3f m/s, R: .3f m/s", left, right);
 	
 	MRrobot->lock();
@@ -360,19 +349,14 @@ void Task::lrVel(double left, double right)
 
 // Turn on/off the PDB
 void Task::controlPDB(boost::int32_t portNr, bool onoff)
-{
-        //std::stringstream loginfostr;
-	//cout<<"Aria_Task: Turning Port "<<portNr<<" ";
-	//onoff ? cout<<"ON":cout<<"OFF";
-	//cout<<endl;
-	
+{	
 	std::string onoffstr;
 	onoff ? onoffstr="ON":onoffstr="OFF";
 	
 	LOG_INFO("Aria: Turning Port %i %s",portNr, onoffstr.c_str());
     	
-    	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
-    	MRrobot->lock();
+	// Send command #116, parameter: port-number, onoff (1=on, 0=off)
+	MRrobot->lock();
 	MRrobot->com2Bytes(116, portNr, onoff);
 	MRrobot->unlock();
 }
@@ -380,7 +364,6 @@ void Task::controlPDB(boost::int32_t portNr, bool onoff)
 // Send a direct serial Command to Robot
 void Task::directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd2byte)
 {
-	//cout<<"Aria_Task: Direct Command "<<MRcmd2byte.cmdnr<<" with HB: "<<MRcmd2byte.highbyte<<" LB: "<<MRcmd2byte.lowbyte<<endl;
 	LOG_INFO("Aria: Direct Command %i with HB: %i LB: %i", MRcmd2byte.cmdnr, MRcmd2byte.highbyte, MRcmd2byte.lowbyte);
 	
 	MRrobot->lock();
@@ -391,7 +374,6 @@ void Task::directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd
 // Reset the Odometer
 void Task::resetOdometer()
 {
-    //cout<<"Aria_Task: Resetting Odometer"<<endl;
     LOG_INFO("Aria: Resetting Odometer");
 
     MRrobot->lock();

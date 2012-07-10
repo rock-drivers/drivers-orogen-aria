@@ -1,8 +1,7 @@
 #ifndef _ARIATYPE_HPP_
 #define _ARIATYPE_HPP_
 
-#include <iostream>
-#include<vector>
+#include <vector>
 
 #include <base/time.h>
 #include <base/motion_command.h>
@@ -92,8 +91,10 @@ namespace samples
 		int front;
 		int rear;
 		
-		std::vector<bool> bumpersFront;
-		std::vector<bool> bumpersRear;
+		//std::vector<bool> bumpersFront;
+		std::vector<uint8_t> bumpersFront;
+		//std::vector<bool> bumpersRear;
+		std::vector<uint8_t> bumpersRear;
 		
 		base::Time time;
 	};
