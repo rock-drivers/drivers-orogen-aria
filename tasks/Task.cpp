@@ -33,6 +33,9 @@ bool Task::configureHook()
     if (! TaskBase::configureHook())
         return false;
     
+    // Read number of wheels
+    nwheels = _wheels.get();
+    
     ArArgumentBuilder *MRarguments = new ArArgumentBuilder();
     
     MRarguments->add("-robotPort");
@@ -40,7 +43,7 @@ bool Task::configureHook()
     
     // Use boost tokenizer to read the ports that should turned on by default on
     // boot. 'poweron_boot' is of type std::string where all values 
-    // (portnumbers) are separated by comma or space.
+    // (portnumbers) are separated by comma or space (e.g., "3 6 7 9 10").
     boost::tokenizer<> tokPortList(_poweron_boot.get());
     std::string nrstr;
     int portnr;
@@ -71,6 +74,9 @@ bool Task::startHook()
 {
     if (! TaskBase::startHook())
         return false;
+    
+    // Reset index of updateHook
+    index = 0;
     
     // Initialise Aria
     Aria::init();
@@ -119,6 +125,9 @@ void Task::updateHook()
 {
     TaskBase::updateHook();
     
+    // Count updateHook calls
+    index++;
+    
     // Write Commands to Robot
     base::MotionCommand2D MRmotion;
     bool MRdoResetOdometry = 0;
@@ -156,6 +165,10 @@ void Task::updateHook()
     
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
+    base::actuators::Status MRmotorstate;
+    // Resize Motor States to number of wheels
+    MRmotorstate.resize(nwheels);
+    
     AriaTypes::samples::Velocity MRvel;
     AriaTypes::samples::Velocity2 MRvel2;
     AriaTypes::samples::BatteryLevel MRbatteryLevel;
@@ -169,6 +182,8 @@ void Task::updateHook()
     
     // Lock Robot for Reading
     MRrobot->lock();
+    
+    double diffconvfactor = MRrobot->getRobotParams()->getDiffConvFactor();
     
     // Position
     MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
@@ -203,6 +218,17 @@ void Task::updateHook()
     MRodom.time = base::Time::now();
     MRodom.odomDistance = MRrobot->getTripOdometerDistance();
     MRodom.odomDegrees = MRrobot->getTripOdometerDegrees();
+    
+    // Motor State
+    MRmotorstate.time = base::Time::now();
+    MRmotorstate.index = index;
+    
+    // Write single odometry value to all wheels
+    for(vector<base::actuators::MotorState>::iterator it = MRmotorstate.states.begin();
+        it != MRmotorstate.states.end(); ++it)
+    {
+        it->position = MRodom.odomDistance * diffconvfactor;
+    }
     
     // Raw Data from left and right Encoders
     MRenc.time = base::Time::now();
@@ -279,6 +305,7 @@ void Task::updateHook()
     _robot_odometer.write(MRodom);
     _robot_encoder.write(MRenc);
     _robot_bumpers.write(MRbumpers);
+    _motor_states.write(MRmotorstate);
     
 }
 // void Task::errorHook()
@@ -310,6 +337,9 @@ void Task::cleanupHook()
     
     delete MRparser;
     MRparser = 0;
+    
+    // Reset number of wheels
+    nwheels = 0;
     
     LOG_INFO("Aria: Exit.");
 }

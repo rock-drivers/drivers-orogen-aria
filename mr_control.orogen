@@ -11,8 +11,12 @@ task_context "Task" do
    # in the C++ code with # _config_value.get() and _config_value.set(new_value).
    
    needs_configuration
-   property "serial_port", "/std/string", "/dev/ttyS0"
-   property "poweron_boot", "/std/string"
+   property("serial_port", "std/string", "/dev/ttyS0").
+    doc("Path to Serial-Port of Controller (default: COM0)")
+   property("poweron_boot", "std/string").
+    doc("Comma or Space separated List of Ports that are powered on at boot")
+   property("wheels", "int", 4).
+    doc("Number of Wheels (default: 4)")
 
    # An input port, i.e. an object from which the component gets data from
    # other components' outputs
@@ -20,8 +24,8 @@ task_context "Task" do
    # Data can be retrieved using _input.read(value), which returns true if data
    # was available, and false otherwise. _input.connected() returns if this
    # input is connected to an output or not.
-   input_port "transrot_vel", "/base/MotionCommand2D"
-   input_port "leftright_vel", "/AriaTypes/commands/Velocity2"
+   input_port "transrot_vel", "base/MotionCommand2D"
+   input_port "leftright_vel", "AriaTypes/commands/Velocity2"
    
    # Atomic Actions
    input_port "aa_transl_vel", "double"
@@ -32,15 +36,17 @@ task_context "Task" do
    #
    # Data can be written using _output.write(value). _output.connected() returns
    # if this output is connected to an input or not.
-   output_port "robot_pose", "/base/samples/RigidBodyState"
-   output_port "robot_motion", "/AriaTypes/samples/Velocity"
-   output_port "robot_motion2", "/AriaTypes/samples/Velocity2"
-   output_port "robot_compass", "/AriaTypes/samples/CompassHeading"
-   output_port "robot_battery", "/AriaTypes/samples/BatteryLevel"
-   output_port "robot_temp", "/AriaTypes/samples/Temperature"
-   output_port "robot_odometer", "/AriaTypes/samples/Odometer"
-   output_port "robot_encoder", "/AriaTypes/samples/Encoder"
-   output_port "robot_bumpers", "/AriaTypes/samples/Bumpers"
+   output_port "robot_pose", "base/samples/RigidBodyState"
+   output_port "robot_motion", "AriaTypes/samples/Velocity"
+   output_port "robot_motion2", "AriaTypes/samples/Velocity2"
+   output_port "robot_compass", "AriaTypes/samples/CompassHeading"
+   output_port "robot_battery", "AriaTypes/samples/BatteryLevel"
+   output_port "robot_temp", "AriaTypes/samples/Temperature"
+   output_port "robot_odometer", "AriaTypes/samples/Odometer"
+   output_port "robot_encoder", "AriaTypes/samples/Encoder"
+   output_port "robot_bumpers", "AriaTypes/samples/Bumpers"
+   
+   output_port "motor_states", "base/actuators/Status"
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this

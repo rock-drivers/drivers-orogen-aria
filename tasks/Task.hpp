@@ -33,6 +33,8 @@ namespace mr_control {
         ArArgumentParser *MRparser;
         ArRobotConnector *MRconnector;
         vector<int> PowerPortsON;
+        int nwheels;
+        uint64_t index;
         
         // Operation Methods
         void controlPDB(boost::int32_t portNr, bool onoff);
