@@ -70,7 +70,7 @@ namespace samples
 	struct Odometer
 	{
 		double odomDistance;
-		double odomDegrees;
+		double odomAngle;
 		base::Time time;
 	};
 	

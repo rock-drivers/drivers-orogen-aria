@@ -189,18 +189,18 @@ void Task::updateHook()
     MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
     MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ()); // rad
     
-    MRpose.velocity = Eigen::Vector3d(MRrobot->getVel(), 0, 0); // m/s
+    MRpose.velocity = Eigen::Vector3d(MRrobot->getVel() / 1000, 0, 0); // m/s
     MRpose.angular_velocity = Eigen::Vector3d(MRrobot->getRotVel() * M_PI/180, 0, 0); // rad/s
     
     // Velocity
     MRvel.time = base::Time::now();
-    MRvel.velTransRot.translation = MRrobot->getVel(); // in mm/s
-    MRvel.velTransRot.rotation = MRrobot->getRotVel(); // in deg/s
+    MRvel.velTransRot.translation = MRrobot->getVel() / 1000; // in m/s
+    MRvel.velTransRot.rotation = MRrobot->getRotVel() * M_PI/180; // in rad/s
     
     // Velocity2 (left, right)
     MRvel2.time = base::Time::now();
-    MRvel2.velLeft = MRrobot->getLeftVel(); // in mm/s
-    MRvel2.velRight = MRrobot->getRightVel(); // in mm/s
+    MRvel2.velLeft = MRrobot->getLeftVel() / 1000; // in m/s
+    MRvel2.velRight = MRrobot->getRightVel() / 1000; // in m/s
     
     // Battery
     MRbatteryLevel.time = base::Time::now();
@@ -216,8 +216,8 @@ void Task::updateHook()
     
     // Odomerty
     MRodom.time = base::Time::now();
-    MRodom.odomDistance = MRrobot->getTripOdometerDistance();
-    MRodom.odomDegrees = MRrobot->getTripOdometerDegrees();
+    MRodom.odomDistance = MRrobot->getTripOdometerDistance() / 1000; // in m
+    MRodom.odomAngle = MRrobot->getTripOdometerDegrees() * M_PI/180; // in rad
     
     // Motor State
     MRmotorstate.time = base::Time::now();
