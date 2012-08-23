@@ -186,6 +186,7 @@ void Task::updateHook()
     double diffconvfactor = MRrobot->getRobotParams()->getDiffConvFactor();
     
     // Position
+    MRpose.time = base::Time::now();
     MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
     MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ()); // rad
     
