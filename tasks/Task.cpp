@@ -13,14 +13,14 @@ using namespace mr_control;
 //Task::Task(std::string const& name, TaskCore::TaskState initial_state)
 //    : TaskBase(name, initial_state)
 Task::Task(std::string const& name) //needs_configuration
-    : TaskBase(name)
+    : TaskBase(name), wheel_pos({0,0})
 {
 }
 
 //Task::Task(std::string const& name, RTT::ExecutionEngine* engine, TaskCore::TaskState initial_state)
 //    : TaskBase(name, engine, initial_state)
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine) //needs_configuration
-    : TaskBase(name, engine)
+    : TaskBase(name, engine), wheel_pos({0,0})
 {
 }
 
@@ -165,9 +165,9 @@ void Task::updateHook()
     
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
-    base::actuators::Status MRmotorstate;
+    base::actuators::Status MRmotorstatus;
     // Resize Motor States to number of wheels
-    MRmotorstate.resize(nwheels);
+    MRmotorstatus.resize(nwheels);
     
     AriaTypes::samples::Velocity MRvel;
     AriaTypes::samples::Velocity2 MRvel2;
@@ -221,15 +221,37 @@ void Task::updateHook()
     MRodom.odomAngle = MRrobot->getTripOdometerDegrees() * M_PI/180; // in rad
     
     // Motor State
-    MRmotorstate.time = base::Time::now();
-    MRmotorstate.index = index;
+    MRmotorstatus.time = base::Time::now();
+    MRmotorstatus.index = index;
     
-    // Write single odometry value to all wheels
-    for(vector<base::actuators::MotorState>::iterator it = MRmotorstate.states.begin();
-        it != MRmotorstate.states.end(); ++it)
-    {
-        it->position = MRodom.odomDistance * diffconvfactor;
+    base::Time dt;
+    if(index <= 1){
+        // first cycle, there is not time difference to previous cycle
+        dt = base::Time::fromMilliseconds(0);
     }
+    else{
+        dt = base::Time::now() - t_prev;
+    }
+    
+    // get some properties from the robot specific parameter file (aria/params/*.p)
+//    ArRobotParams params = MRrobot->getRobotParams();
+//    getVel2Divisor(); // multiplier for VEL2 commands.
+//    getVelConvFactor(); // velocity conversion factor.
+    //diffconvfactor = angular_vel / wheel_vel = 0.0056 ?
+    
+    // get rotation of wheels by traveled distance per side (through velovcity and delta time)
+    wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
+    wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
+    
+    // remove full turns (2*pi)
+    //wheel_pos[0] = fmod(wheel_pos[0], 2*M_PI);
+    //wheel_pos[1] = fmod(wheel_pos[1], 2*M_PI);
+    
+    MRmotorstatus.states[odometry::FRONT_LEFT].position = wheel_pos[0]; // front left
+    MRmotorstatus.states[odometry::REAR_LEFT].position = wheel_pos[0]; // rear left
+    MRmotorstatus.states[odometry::FRONT_RIGHT].position = wheel_pos[1]; // front right
+    MRmotorstatus.states[odometry::REAR_RIGHT].position = wheel_pos[1]; // rear right
+    
     
     // Raw Data from left and right Encoders
     MRenc.time = base::Time::now();
@@ -306,13 +328,17 @@ void Task::updateHook()
     _robot_odometer.write(MRodom);
     _robot_encoder.write(MRenc);
     _robot_bumpers.write(MRbumpers);
-    _motor_states.write(MRmotorstate);
+    _motor_states.write(MRmotorstatus);
     
+    // start of measurement
+    t_prev = base::Time::now();
 }
+
 // void Task::errorHook()
 // {
 //     TaskBase::errorHook();
 // }
+
 void Task::stopHook()
 {
     

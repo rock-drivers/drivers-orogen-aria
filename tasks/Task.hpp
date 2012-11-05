@@ -7,6 +7,7 @@
 
 #include "Aria.h"
 #include "AriaTypes.hpp"
+#include <odometry/BodyState.hpp> // for enum wheelIdx
 
 namespace mr_control {
 
@@ -35,6 +36,8 @@ namespace mr_control {
         vector<int> PowerPortsON;
         int nwheels;
         uint64_t index;
+        float wheel_pos[2]; // position (rad) of wheels (left, right)
+        base::Time t_prev; // timemark of previous updateHook
         
         // Operation Methods
         void controlPDB(boost::int32_t portNr, bool onoff);
