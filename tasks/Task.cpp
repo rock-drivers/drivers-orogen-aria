@@ -1,7 +1,7 @@
 /**
  * @author  Christian Rauch <Christian.Rauch@dfki.de>
  * @version 1.0
- * @date 10.07.2012 (dd/mm/yyyy)
+ * @date 16.11.2012 (dd/mm/yyyy)
  */
  
 #include "Task.hpp"
