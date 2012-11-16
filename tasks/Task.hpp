@@ -33,7 +33,7 @@ namespace mr_control {
         ArRobot *MRrobot;
         ArArgumentParser *MRparser;
         ArRobotConnector *MRconnector;
-        vector<int> PowerPortsON;
+        std::vector<int> PowerPortsON;
         int nwheels;
         uint64_t index;
         float wheel_pos[2]; // position (rad) of wheels (left, right)

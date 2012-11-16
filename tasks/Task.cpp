@@ -46,11 +46,9 @@ bool Task::configureHook()
     // (portnumbers) are separated by comma or space (e.g., "3 6 7 9 10").
     boost::tokenizer<> tokPortList(_poweron_boot.get());
     std::string nrstr;
-    int portnr;
     for(boost::tokenizer<>::iterator tokit=tokPortList.begin();
     	tokit!=tokPortList.end(); ++tokit){
     	nrstr = *tokit;
-    	portnr = atoi(nrstr.c_str());
     	PowerPortsON.push_back(atoi(nrstr.c_str()));
     }
     
@@ -115,7 +113,7 @@ bool Task::startHook()
     LOG_INFO("Aria: Thread started.")
     
     // Turn ON default Power-Ports
-    for(vector<int>::iterator portsit=PowerPortsON.begin(); portsit!=PowerPortsON.end(); ++portsit){
+    for(std::vector<int>::iterator portsit=PowerPortsON.begin(); portsit!=PowerPortsON.end(); ++portsit){
         controlPDB(*portsit, 1);
     }
     
@@ -130,11 +128,7 @@ void Task::updateHook()
     
     // Write Commands to Robot
     base::MotionCommand2D MRmotion;
-    bool MRdoResetOdometry = 0;
     double MRtransVel, MRrotVel;
-    
-    AriaTypes::commands::DevicePower MRdeviceOnOff;
-    AriaTypes::commands::DirectCommand2Byte MRdirectCommand;
     
     // Process Motion Commands
     // MotionCommand2D
@@ -281,7 +275,7 @@ void Task::updateHook()
     bool frbump[MRbumpers.nrFront];
     bool rebump[MRbumpers.nrRear];
     int bit = 0;
-    int i = 0;
+    unsigned int i = 0;
     
     for(i = 0, bit = 2; i < MRrobot->getNumFrontBumpers(); i++, bit *= 2){
     	frbump[i] = (MRbumpers.front & bit);
