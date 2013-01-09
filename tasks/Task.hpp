@@ -30,6 +30,7 @@ namespace mr_control {
 	friend class TaskBase;
 
     protected:
+        ArArgumentBuilder *MRarguments;
         ArRobot *MRrobot;
         ArArgumentParser *MRparser;
         ArRobotConnector *MRconnector;

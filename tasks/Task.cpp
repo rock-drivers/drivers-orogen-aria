@@ -13,14 +13,20 @@ using namespace mr_control;
 //Task::Task(std::string const& name, TaskCore::TaskState initial_state)
 //    : TaskBase(name, initial_state)
 Task::Task(std::string const& name) //needs_configuration
-    : TaskBase(name), wheel_pos({0,0})
+    : TaskBase(name)
+    , MRarguments(0)
+    , MRparser(0)
+    , wheel_pos({0,0})
 {
 }
 
 //Task::Task(std::string const& name, RTT::ExecutionEngine* engine, TaskCore::TaskState initial_state)
 //    : TaskBase(name, engine, initial_state)
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine) //needs_configuration
-    : TaskBase(name, engine), wheel_pos({0,0})
+    : TaskBase(name, engine)
+    , MRarguments(0)
+    , MRparser(0)
+    , wheel_pos({0,0})
 {
 }
 
@@ -36,8 +42,7 @@ bool Task::configureHook()
     // Read number of wheels
     nwheels = _wheels.get();
     
-    ArArgumentBuilder *MRarguments = new ArArgumentBuilder();
-    
+    MRarguments = new ArArgumentBuilder();
     MRarguments->add("-robotPort");
     MRarguments->add(_serial_port.get().c_str());
     
@@ -62,9 +67,6 @@ bool Task::configureHook()
     	LOG_WARN("Aria: Unparsed Arguments found");
 	
     LOG_INFO("Aria: Used Parameters: %s",*MRparser->getArgv());
-    
-    delete MRarguments;
-    MRarguments = 0;
     
     return true;
 }
@@ -358,6 +360,8 @@ void Task::cleanupHook()
     
     delete MRparser;
     MRparser = 0;
+    delete MRarguments;
+    MRarguments = 0;
     
     // Reset number of wheels
     nwheels = 0;
