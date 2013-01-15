@@ -161,6 +161,7 @@ void Task::updateHook()
     
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
+    base::samples::RigidBodyState MRposeraw;
     base::actuators::Status MRmotorstatus;
     // Resize Motor States to number of wheels
     MRmotorstatus.resize(nwheels);
@@ -188,6 +189,12 @@ void Task::updateHook()
     
     MRpose.velocity = Eigen::Vector3d(MRrobot->getVel() / 1000, 0, 0); // m/s
     MRpose.angular_velocity = Eigen::Vector3d(MRrobot->getRotVel() * M_PI/180, 0, 0); // rad/s
+    
+    // Raw Position (without corrections by gyro or software if available)
+    ArPose pose_raw = MRrobot->getRawEncoderPose();
+    MRposeraw.time = base::Time::now();
+    MRposeraw.position = Eigen::Vector3d(pose_raw.getX() / 1000, pose_raw.getY() / 1000, 0); // in meters
+    MRposeraw.orientation = Eigen::AngleAxis<double>(pose_raw.getThRad(), Eigen::Vector3d::UnitZ()); // rad
     
     // Velocity
     MRvel.time = base::Time::now();
@@ -316,6 +323,7 @@ void Task::updateHook()
         
     // Distribute Messages
     _robot_pose.write(MRpose);
+    _robot_pose_raw.write(MRposeraw);
     _robot_motion.write(MRvel);
     _robot_motion2.write(MRvel2);
     _robot_battery.write(MRbatteryLevel);

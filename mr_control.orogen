@@ -37,6 +37,7 @@ task_context "Task" do
    # Data can be written using _output.write(value). _output.connected() returns
    # if this output is connected to an input or not.
    output_port "robot_pose", "base/samples/RigidBodyState"
+   output_port "robot_pose_raw", "base/samples/RigidBodyState"
    output_port "robot_motion", "AriaTypes/samples/Velocity"
    output_port "robot_motion2", "AriaTypes/samples/Velocity2"
    output_port "robot_compass", "AriaTypes/samples/CompassHeading"
