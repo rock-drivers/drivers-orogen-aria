@@ -15,8 +15,13 @@ private:
     ArRobotConnector* mrConnector;
 
 public:
-    MrControl(const String& serial_port) 
+    MrControl(const std::string& serial_port, bool logging) 
     {
+        if(!logging)
+            ArLog::init(ArLog::None, ArLog::Terse, "", false, false, false);
+        else
+            ArLog::init(ArLog::StdOut, ArLog::Normal, "", false, false, false);
+
         mrArgs = new ArArgumentBuilder;
         mrArgs->add("-robotPort");
         mrArgs->add(serial_port.c_str());
@@ -66,8 +71,9 @@ Data_Type<MrControl> rb_mrcontrol;
 extern "C"
 void Init_mr_control()
 {
+
     rb_mrcontrol = define_class<MrControl>("MrControl")
-        .define_constructor(Constructor<MrControl, String>())
+        .define_constructor(Constructor<MrControl, std::string, bool>())
         .define_method("power_on", &MrControl::power_on, (Arg("port")))
         .define_method("power_off", &MrControl::power_off, (Arg("port")));
 }

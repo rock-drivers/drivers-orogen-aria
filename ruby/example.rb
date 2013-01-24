@@ -1,6 +1,6 @@
 require "mr_control"
 
-p = MrControl.new
+p = MrControl.new "/dev/ttyS0", false
 
-p.power_on 10
+p.power_off 6
 
