@@ -8,6 +8,8 @@ INCLUDE(mr_controlBase)
 INSTALL(FILES AriaTypes.hpp
     DESTINATION include/aria)
 
+include($ENV{ROCK_CMAKE_MACROS}/RockRuby.cmake)
+add_subdirectory(ruby)
 # FIND_PACKAGE(KDL)
 # FIND_PACKAGE(OCL)
 
