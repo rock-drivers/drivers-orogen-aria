@@ -14,4 +14,5 @@
   <depend package="dummy-dependency-n" />
   -->
   <depend package="virgo/aria" />
+  <depend package="slam/odometry" />
 </package>
