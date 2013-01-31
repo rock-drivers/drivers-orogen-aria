@@ -347,6 +347,11 @@ void Task::stopHook()
 {
     
     TaskBase::stopHook();
+ 
+    MRrobot->lock();
+    MRrobot->setVel(0);
+    MRrobot->setRotVel(0);
+    MRrobot->unlock();
     
     MRrobot->stopRunning();
     MRrobot->waitForRunExit();
