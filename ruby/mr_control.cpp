@@ -72,7 +72,7 @@ extern "C"
 void Init_mr_control()
 {
 
-    rb_mrcontrol = define_class<MrControl>("MrControl")
+    rb_mrcontrol = define_class<MrControl>("MrControlInterface")
         .define_constructor(Constructor<MrControl, std::string, bool>())
         .define_method("power_on", &MrControl::power_on, (Arg("port")))
         .define_method("power_off", &MrControl::power_off, (Arg("port")));
