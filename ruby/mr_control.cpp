@@ -62,6 +62,24 @@ public:
         mrRobot->com2Bytes(116, port, false);
         mrRobot->unlock();
     }
+
+    double battery_status() 
+    {
+        mrRobot->lock();
+        double status = mrRobot->getStateOfCharge();
+        mrRobot->unlock();
+
+        return status;
+    }
+
+    double temperature_status()
+    {
+        mrRobot->lock();
+        double status = mrRobot->getTemperature();
+        mrRobot->unlock();
+
+        return status;
+    }
 };
 
 
@@ -75,5 +93,7 @@ void Init_mr_control()
     rb_mrcontrol = define_class<MrControl>("MrControlInterface")
         .define_constructor(Constructor<MrControl, std::string, bool>())
         .define_method("power_on", &MrControl::power_on, (Arg("port")))
-        .define_method("power_off", &MrControl::power_off, (Arg("port")));
+        .define_method("power_off", &MrControl::power_off, (Arg("port")))
+        .define_method("battery_status", &MrControl::battery_status)
+        .define_method("temperature_status", &MrControl::temperature_status);
 }
