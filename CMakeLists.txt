@@ -1,8 +1,8 @@
-PROJECT(mr_control)
+PROJECT(aria)
 cmake_minimum_required(VERSION 2.6)
 
 SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/.orogen/config")
-INCLUDE(mr_controlBase)
+INCLUDE(ariaBase)
 
 # Install additional Types for Aria
 INSTALL(FILES AriaTypes.hpp

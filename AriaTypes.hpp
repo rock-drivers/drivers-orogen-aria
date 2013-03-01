@@ -6,7 +6,7 @@
 #include <base/time.h>
 #include <base/motion_command.h>
 
-namespace AriaTypes
+namespace aria
 {
 // Commands to be send to Robot
 namespace commands

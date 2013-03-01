@@ -8,7 +8,7 @@
 #include<base/logging.h>
 #include<boost/tokenizer.hpp>
 
-using namespace mr_control;
+using namespace aria;
 
 //Task::Task(std::string const& name, TaskCore::TaskState initial_state)
 //    : TaskBase(name, initial_state)
@@ -166,16 +166,16 @@ void Task::updateHook()
     // Resize Motor States to number of wheels
     MRmotorstatus.resize(nwheels);
     
-    AriaTypes::samples::Velocity MRvel;
-    AriaTypes::samples::Velocity2 MRvel2;
-    AriaTypes::samples::BatteryLevel MRbatteryLevel;
-    AriaTypes::samples::Temperature MRtemperature;
-    AriaTypes::samples::CompassHeading MRcompass;
+    aria::samples::Velocity MRvel;
+    aria::samples::Velocity2 MRvel2;
+    aria::samples::BatteryLevel MRbatteryLevel;
+    aria::samples::Temperature MRtemperature;
+    aria::samples::CompassHeading MRcompass;
     
-    AriaTypes::samples::Odometer MRodom;
-    AriaTypes::samples::Encoder MRenc;
+    aria::samples::Odometer MRodom;
+    aria::samples::Encoder MRenc;
     
-    AriaTypes::samples::Bumpers MRbumpers;
+    aria::samples::Bumpers MRbumpers;
     
     // Lock Robot for Reading
     MRrobot->lock();
@@ -430,7 +430,7 @@ void Task::controlPDB(boost::int32_t portNr, bool onoff)
 }
 
 // Send a direct serial Command to Robot
-void Task::directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd2byte)
+void Task::directCommand(::aria::commands::DirectCommand2Byte const & MRcmd2byte)
 {
 	LOG_INFO("Aria: Direct Command %i with HB: %i LB: %i", MRcmd2byte.cmdnr, MRcmd2byte.highbyte, MRcmd2byte.lowbyte);
 	

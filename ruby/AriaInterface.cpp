@@ -6,7 +6,7 @@
 
 using namespace Rice;
 
-class MrControl 
+class AriaInterface
 {
 private:
     ArArgumentBuilder* mrArgs;
@@ -15,7 +15,7 @@ private:
     ArRobotConnector* mrConnector;
 
 public:
-    MrControl(const std::string& serial_port, bool logging) 
+    AriaInterface(const std::string& serial_port, bool logging) 
     {
         if(!logging)
             ArLog::init(ArLog::None, ArLog::Terse, "", false, false, false);
@@ -39,7 +39,7 @@ public:
         mrRobot->runAsync(false);
     }
 
-    ~MrControl() 
+    ~AriaInterface() 
     {
         Aria::shutdown();
 
@@ -83,17 +83,17 @@ public:
 };
 
 
-Data_Type<MrControl> rb_mrcontrol;
+Data_Type<AriaInterface> rb_aria_interface;
 
 
 extern "C"
-void Init_mr_control()
+void Init_aria_interface()
 {
 
-    rb_mrcontrol = define_class<MrControl>("MrControlInterface")
-        .define_constructor(Constructor<MrControl, std::string, bool>())
-        .define_method("power_on", &MrControl::power_on, (Arg("port")))
-        .define_method("power_off", &MrControl::power_off, (Arg("port")))
-        .define_method("battery_status", &MrControl::battery_status)
-        .define_method("temperature_status", &MrControl::temperature_status);
+    rb_aria_interface = define_class<AriaInterface>("AriaInterface")
+        .define_constructor(Constructor<AriaInterface, std::string, bool>())
+        .define_method("power_on", &AriaInterface::power_on, (Arg("port")))
+        .define_method("power_off", &AriaInterface::power_off, (Arg("port")))
+        .define_method("battery_status", &AriaInterface::battery_status)
+        .define_method("temperature_status", &AriaInterface::temperature_status);
 }

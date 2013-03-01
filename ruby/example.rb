@@ -1,6 +1,6 @@
-require "mr_control"
+require "aria"
 
-p = MrControl.new "/dev/ttyS0", false
+p = AriaInterface.new "/dev/ttyS0", false
 
 p.power_off 6
 

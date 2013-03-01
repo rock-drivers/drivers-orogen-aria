@@ -1,15 +1,15 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef MR_CONTROL_TASK_TASK_HPP
-#define MR_CONTROL_TASK_TASK_HPP
+#ifndef ARIA_TASK_TASK_HPP
+#define ARIA_TASK_TASK_HPP
 
-#include "mr_control/TaskBase.hpp"
+#include "aria/TaskBase.hpp"
 
 #include "Aria.h"
 #include "AriaTypes.hpp"
 #include <odometry/BodyState.hpp> // for enum wheelIdx
 
-namespace mr_control {
+namespace aria {
 
     /*! \class Task 
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
@@ -42,7 +42,7 @@ namespace mr_control {
         
         // Operation Methods
         void controlPDB(boost::int32_t portNr, bool onoff);
-        void directCommand(::AriaTypes::commands::DirectCommand2Byte const & MRcmd2byte);
+        void directCommand(::aria::commands::DirectCommand2Byte const & MRcmd2byte);
         void lrVel(double left, double right);
         void resetOdometer();
         void transrotVel(::base::MotionCommand2D const & velocities);
@@ -55,7 +55,7 @@ namespace mr_control {
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
         //Task(std::string const& name = "mr_control::Task", TaskCore::TaskState initial_state = Stopped);
-        Task(std::string const& name = "mr_control::Task"); //needs_configuration
+        Task(std::string const& name = "aria::Task"); //needs_configuration
 
         /** TaskContext constructor for Task 
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 
