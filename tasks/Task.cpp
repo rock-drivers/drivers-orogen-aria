@@ -10,8 +10,6 @@
 
 using namespace aria;
 
-//Task::Task(std::string const& name, TaskCore::TaskState initial_state)
-//    : TaskBase(name, initial_state)
 Task::Task(std::string const& name) //needs_configuration
     : TaskBase(name)
     , MRarguments(0)
@@ -20,8 +18,6 @@ Task::Task(std::string const& name) //needs_configuration
 {
 }
 
-//Task::Task(std::string const& name, RTT::ExecutionEngine* engine, TaskCore::TaskState initial_state)
-//    : TaskBase(name, engine, initial_state)
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine) //needs_configuration
     : TaskBase(name, engine)
     , MRarguments(0)

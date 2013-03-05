@@ -54,7 +54,6 @@ namespace aria {
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        //Task(std::string const& name = "mr_control::Task", TaskCore::TaskState initial_state = Stopped);
         Task(std::string const& name = "aria::Task"); //needs_configuration
 
         /** TaskContext constructor for Task 
@@ -62,7 +61,6 @@ namespace aria {
          * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task. 
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        //Task(std::string const& name, RTT::ExecutionEngine* engine, TaskCore::TaskState initial_state = Stopped);
         Task(std::string const& name, RTT::ExecutionEngine* engine); //needs_configuration
 
         /** Default deconstructor of Task
