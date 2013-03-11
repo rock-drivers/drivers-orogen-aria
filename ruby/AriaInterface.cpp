@@ -63,22 +63,37 @@ public:
         mrRobot->unlock();
     }
 
-    double battery_status() 
+    double charge_state() 
     {
         mrRobot->lock();
+
         double status = mrRobot->getStateOfCharge();
+        
         mrRobot->unlock();
 
         return status;
     }
 
-    double temperature_status()
+    double temperature_state()
     {
         mrRobot->lock();
+
         double status = mrRobot->getTemperature();
+    
         mrRobot->unlock();
 
         return status;
+    }
+
+    double battery_state()
+    {
+        mrRobot->lock();
+
+        double volt = mrRobot->getBatteryVoltageNow();
+
+        mrRobot->unlock();
+
+        return volt;
     }
 };
 
@@ -89,11 +104,11 @@ Data_Type<AriaInterface> rb_aria_interface;
 extern "C"
 void Init_aria_interface()
 {
-
     rb_aria_interface = define_class<AriaInterface>("AriaInterface")
         .define_constructor(Constructor<AriaInterface, std::string, bool>())
         .define_method("power_on", &AriaInterface::power_on, (Arg("port")))
         .define_method("power_off", &AriaInterface::power_off, (Arg("port")))
-        .define_method("battery_status", &AriaInterface::battery_status)
-        .define_method("temperature_status", &AriaInterface::temperature_status);
+        .define_method("charge_state", &AriaInterface::charge_state)
+        .define_method("battery_state", &AriaInterface::battery_status)
+        .define_method("temperature_state", &AriaInterface::temperature_status);
 }
