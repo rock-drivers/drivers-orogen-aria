@@ -254,6 +254,10 @@ void Task::updateHook()
     MRmotorstatus.states[odometry::REAR_LEFT].position = wheel_pos[0]; // rear left
     MRmotorstatus.states[odometry::FRONT_RIGHT].position = wheel_pos[1]; // front right
     MRmotorstatus.states[odometry::REAR_RIGHT].position = wheel_pos[1]; // rear right
+    MRmotorstatus.states[odometry::FRONT_LEFT].positionExtern = wheel_pos[0]; // front left
+    MRmotorstatus.states[odometry::REAR_LEFT].positionExtern = wheel_pos[0]; // rear left
+    MRmotorstatus.states[odometry::FRONT_RIGHT].positionExtern = wheel_pos[1]; // front right
+    MRmotorstatus.states[odometry::REAR_RIGHT].positionExtern = wheel_pos[1]; // rear right
     
     
     // Raw Data from left and right Encoders
