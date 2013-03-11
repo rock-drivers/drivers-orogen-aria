@@ -102,13 +102,13 @@ Data_Type<AriaInterface> rb_aria_interface;
 
 
 extern "C"
-void Init_aria_interface()
+void Init_aria()
 {
     rb_aria_interface = define_class<AriaInterface>("AriaInterface")
         .define_constructor(Constructor<AriaInterface, std::string, bool>())
         .define_method("power_on", &AriaInterface::power_on, (Arg("port")))
         .define_method("power_off", &AriaInterface::power_off, (Arg("port")))
         .define_method("charge_state", &AriaInterface::charge_state)
-        .define_method("battery_state", &AriaInterface::battery_status)
-        .define_method("temperature_state", &AriaInterface::temperature_status);
+        .define_method("battery_state", &AriaInterface::battery_state)
+        .define_method("temperature_state", &AriaInterface::temperature_state);
 }
