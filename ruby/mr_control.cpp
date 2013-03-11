@@ -63,22 +63,37 @@ public:
         mrRobot->unlock();
     }
 
-    double battery_status() 
+    double charge_state() 
     {
         mrRobot->lock();
+
         double status = mrRobot->getStateOfCharge();
+        
         mrRobot->unlock();
 
         return status;
     }
 
-    double temperature_status()
+    double temperature_state()
     {
         mrRobot->lock();
+
         double status = mrRobot->getTemperature();
+    
         mrRobot->unlock();
 
         return status;
+    }
+
+    double battery_state()
+    {
+        mrRobot->lock();
+
+        double volt = mrRobot->getBatteryVoltageNow();
+
+        mrRobot->unlock();
+
+        return volt;
     }
 };
 
@@ -94,6 +109,7 @@ void Init_mr_control()
         .define_constructor(Constructor<MrControl, std::string, bool>())
         .define_method("power_on", &MrControl::power_on, (Arg("port")))
         .define_method("power_off", &MrControl::power_off, (Arg("port")))
-        .define_method("battery_status", &MrControl::battery_status)
-        .define_method("temperature_status", &MrControl::temperature_status);
+        .define_method("charge_state", &MrControl::charge_state)
+        .define_method("battery_state", &MrControl::battery_state)
+        .define_method("temperature_state", &MrControl::temperature_state);
 }

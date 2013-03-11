@@ -1,6 +1,8 @@
 require "mr_control"
 
-p = MrControl.new "/dev/ttyS0", false
+p = MrControlInterface.new "/dev/ttyS0", false
 
-p.power_off 6
+puts p.battery_state
+puts p.temperature_state
+puts p.charge_state
 
