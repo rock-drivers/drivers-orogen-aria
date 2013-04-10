@@ -108,7 +108,9 @@ bool Task::startHook()
     
     // Open new thread for processing cycle
     MRrobot->runAsync(false);
-    LOG_INFO("Aria: Thread started.")
+    LOG_INFO("Aria: Thread started.");
+
+
     
     // Turn ON default Power-Ports
     for(std::vector<int>::iterator portsit=PowerPortsON.begin(); portsit!=PowerPortsON.end(); ++portsit){
@@ -127,6 +129,8 @@ void Task::updateHook()
     // Write Commands to Robot
     base::MotionCommand2D MRmotion;
     double MRtransVel, MRrotVel;
+
+    base::Time t_now = base::Time::now();
     
     // Process Motion Commands
     // MotionCommand2D
@@ -179,7 +183,7 @@ void Task::updateHook()
     double diffconvfactor = MRrobot->getRobotParams()->getDiffConvFactor();
     
     // Position
-    MRpose.time = base::Time::now();
+    MRpose.time = t_now;
     MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
     MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ()); // rad
     
@@ -188,39 +192,39 @@ void Task::updateHook()
     
     // Raw Position (without corrections by gyro or software if available)
     ArPose pose_raw = MRrobot->getRawEncoderPose();
-    MRposeraw.time = base::Time::now();
+    MRposeraw.time = t_now;
     MRposeraw.position = Eigen::Vector3d(pose_raw.getX() / 1000, pose_raw.getY() / 1000, 0); // in meters
     MRposeraw.orientation = Eigen::AngleAxis<double>(pose_raw.getThRad(), Eigen::Vector3d::UnitZ()); // rad
     
     // Velocity
-    MRvel.time = base::Time::now();
+    MRvel.time = t_now;
     MRvel.velTransRot.translation = MRrobot->getVel() / 1000; // in m/s
     MRvel.velTransRot.rotation = MRrobot->getRotVel() * M_PI/180; // in rad/s
     
     // Velocity2 (left, right)
-    MRvel2.time = base::Time::now();
+    MRvel2.time = t_now;
     MRvel2.velLeft = MRrobot->getLeftVel() / 1000; // in m/s
     MRvel2.velRight = MRrobot->getRightVel() / 1000; // in m/s
     
     // Battery
-    MRbatteryLevel.time = base::Time::now();
+    MRbatteryLevel.time = t_now;
     MRbatteryLevel.battery = MRrobot->getStateOfCharge();
     
     // Temperature
-    MRtemperature.time = base::Time::now();
+    MRtemperature.time = t_now;
     MRtemperature.temp = MRrobot->getTemperature();
     
     // Compass
-    MRcompass.time = base::Time::now();
+    MRcompass.time = t_now;
     MRcompass.heading = MRrobot->getCompass();
     
     // Odomerty
-    MRodom.time = base::Time::now();
+    MRodom.time = t_now;
     MRodom.odomDistance = MRrobot->getTripOdometerDistance() / 1000; // in m
     MRodom.odomAngle = MRrobot->getTripOdometerDegrees() * M_PI/180; // in rad
     
     // Motor State
-    MRmotorstatus.time = base::Time::now();
+    MRmotorstatus.time = t_now;
     MRmotorstatus.index = index;
     
     base::Time dt;
@@ -229,7 +233,7 @@ void Task::updateHook()
         dt = base::Time::fromMilliseconds(0);
     }
     else{
-        dt = base::Time::now() - t_prev;
+        dt = t_now - t_prev;
     }
     
     // get some properties from the robot specific parameter file (aria/params/*.p)
@@ -257,7 +261,7 @@ void Task::updateHook()
     
     
     // Raw Data from left and right Encoders
-    MRenc.time = base::Time::now();
+    MRenc.time = t_now;
     MRrobot->requestEncoderPackets();
     MRenc.encLeft = MRrobot->getLeftEncoder();
     MRenc.encRight = MRrobot->getRightEncoder();
@@ -267,7 +271,7 @@ void Task::updateHook()
     
     // Bumpers
     // See Aria Documentation and/or ArModes.cpp for an Example how to read out these values.
-    MRbumpers.time = base::Time::now();
+    MRbumpers.time = t_now;
     MRbumpers.nrFront = MRrobot->getNumFrontBumpers();
     MRbumpers.nrRear = MRrobot->getNumRearBumpers();
     
@@ -335,7 +339,7 @@ void Task::updateHook()
     _motor_states.write(MRmotorstatus);
     
     // start of measurement
-    t_prev = base::Time::now();
+    t_prev = t_now;
 }
 
 // void Task::errorHook()
