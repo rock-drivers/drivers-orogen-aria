@@ -8,6 +8,19 @@
 
 namespace aria
 {
+
+/** Contains informations from the robot that could be nice to know.*/
+struct RobotStatus {
+
+    base::Time time;
+    base::Time lastPacketTime;
+    base::Time cycleTime;
+    double batteryVoltage;
+    double chargeState;
+    int temperatureValue;
+    unsigned int count;
+};
+
 // Commands to be send to Robot
 namespace commands
 {

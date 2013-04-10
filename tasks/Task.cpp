@@ -4,6 +4,8 @@
  * @date 16.11.2012 (dd/mm/yyyy)
  */
  
+#include <aria/ariaUtil.h>
+
 #include "Task.hpp"
 #include<base/logging.h>
 #include<boost/tokenizer.hpp>
@@ -226,6 +228,18 @@ void Task::updateHook()
     // Motor State
     MRmotorstatus.time = t_now;
     MRmotorstatus.index = index;
+
+    // Status
+    aria::RobotStatus robot_status;
+    robot_status.time = t_now;
+    ArTime ar_time = MRrobot->getIOPacketTime();
+    robot_status.lastPacketTime.microseconds = ar_time.getMSec() * 1000 + ar_time.getSec() * 1e6;
+    robot_status.cycleTime.microseconds = MRrobot->getCycleTime() * 1000;
+    robot_status.batteryVoltage = MRrobot->getBatteryVoltage();
+    robot_status.chargeState = MRbatteryLevel.battery;
+    robot_status.temperatureValue = MRtemperature.temp;
+    robot_status.count = MRrobot->getCounter();
+
     
     base::Time dt;
     if(index <= 1){
@@ -337,6 +351,7 @@ void Task::updateHook()
     _robot_encoder.write(MRenc);
     _robot_bumpers.write(MRbumpers);
     _motor_states.write(MRmotorstatus);
+    _robot_status.write(robot_status);
     
     // start of measurement
     t_prev = t_now;

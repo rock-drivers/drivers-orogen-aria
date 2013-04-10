@@ -32,11 +32,9 @@ task_context "Task" do
    input_port "aa_transl_vel", "double"
    input_port "aa_rot_vel", "double"
 
-   # An output port, i.e. an object to which the component pushes data so that
-   # it is transmitted to other components' inputs
-   #
-   # Data can be written using _output.write(value). _output.connected() returns
-   # if this output is connected to an input or not.
+   # output ports
+   output_port "robot_status", "aria/RobotStatus"
+
    output_port "robot_pose", "base/samples/RigidBodyState"
    output_port "robot_pose_raw", "base/samples/RigidBodyState"
    output_port "robot_motion", "aria/samples/Velocity"
