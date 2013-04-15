@@ -14,11 +14,14 @@ struct RobotStatus {
 
     base::Time time;
     base::Time lastPacketTime;
+    base::Time lastOdometryTime;
+    base::Time lastIOPacketTime;
     base::Time cycleTime;
     double batteryVoltage;
     double chargeState;
     int temperatureValue;
     unsigned int count;
+    bool motorsEnabled;
 };
 
 // Commands to be send to Robot

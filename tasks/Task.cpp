@@ -12,6 +12,12 @@
 
 using namespace aria;
 
+base::Time fromArTime(const ArTime& t) {
+    base::Time b_time;
+    b_time.microseconds = t.getMSec() * 1000 + t.getSec() * 1e6;
+    return b_time;
+}
+
 Task::Task(std::string const& name) //needs_configuration
     : TaskBase(name)
     , MRarguments(0)
@@ -232,13 +238,15 @@ void Task::updateHook()
     // Status
     aria::RobotStatus robot_status;
     robot_status.time = t_now;
-    ArTime ar_time = MRrobot->getIOPacketTime();
-    robot_status.lastPacketTime.microseconds = ar_time.getMSec() * 1000 + ar_time.getSec() * 1e6;
+    robot_status.lastPacketTime = fromArTime(MRrobot->getLastPacketTime());
+    robot_status.lastOdometryTime = fromArTime(MRrobot->getLastOdometryTime());
+    robot_status.lastIOPacketTime = fromArTime(MRrobot->getIOPacketTime());
     robot_status.cycleTime.microseconds = MRrobot->getCycleTime() * 1000;
     robot_status.batteryVoltage = MRrobot->getBatteryVoltage();
     robot_status.chargeState = MRbatteryLevel.battery;
     robot_status.temperatureValue = MRtemperature.temp;
     robot_status.count = MRrobot->getCounter();
+    robot_status.motorsEnabled = MRrobot->areMotorsEnabled();
 
     
     base::Time dt;
