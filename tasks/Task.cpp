@@ -38,6 +38,19 @@ Task::~Task()
 {
 }
 
+void Task::motorsOff()
+{
+    MRrobot->lock();
+    if (MRrobot) MRrobot->enableMotors();
+    MRrobot->unlock();
+}
+void Task::motorsOn()
+{
+    MRrobot->lock();
+    if (MRrobot) MRrobot->disableMotors();
+    MRrobot->unlock();
+}
+
 bool Task::configureHook()
 {
     if (! TaskBase::configureHook())

@@ -60,6 +60,11 @@ task_context "Task" do
    operation('controlPDB').
    	argument('portNr', 'int').
    	argument('onoff', 'bool')
+
+    operation('motorsOn').
+        doc("give power to the motors")
+    operation('motorsOff').
+        doc("switch motors off")
    	
    # Send direct Command
    operation('directCommand').
