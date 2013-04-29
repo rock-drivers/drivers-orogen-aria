@@ -13,6 +13,6 @@
   <depend package="dummy-dependency-n-1" />
   <depend package="dummy-dependency-n" />
   -->
-  <depend package="external/aria" />
+  <depend package="drivers/aria" />
   <depend package="slam/odometry" />
 </package>
