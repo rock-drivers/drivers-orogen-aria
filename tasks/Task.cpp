@@ -1,10 +1,5 @@
-/**
- * @author  Christian Rauch <Christian.Rauch@dfki.de>
- * @version 1.0
- * @date 16.11.2012 (dd/mm/yyyy)
- */
- 
-#include <aria/ariaUtil.h>
+
+//#include <aria/ariaUtil.h>
 
 #include "Task.hpp"
 #include<base/logging.h>
@@ -261,26 +256,16 @@ void Task::updateHook()
     
     base::Time dt;
     if(index <= 1){
-        // first cycle, there is not time difference to previous cycle
+        // first cycle, there is no time difference to previous cycle
         dt = base::Time::fromMilliseconds(0);
     }
     else{
         dt = t_now - t_prev;
     }
     
-    // get some properties from the robot specific parameter file (aria/params/*.p)
-//    ArRobotParams params = MRrobot->getRobotParams();
-//    getVel2Divisor(); // multiplier for VEL2 commands.
-//    getVelConvFactor(); // velocity conversion factor.
-    //diffconvfactor = angular_vel / wheel_vel = 0.0056 ?
-    
     // get rotation of wheels by traveled distance per side (through velovcity and delta time)
     wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
     wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
-    
-    // remove full turns (2*pi)
-    //wheel_pos[0] = fmod(wheel_pos[0], 2*M_PI);
-    //wheel_pos[1] = fmod(wheel_pos[1], 2*M_PI);
     
     MRmotorstatus.states[odometry::FRONT_LEFT].position = wheel_pos[0]; // front left
     MRmotorstatus.states[odometry::REAR_LEFT].position = wheel_pos[0]; // rear left
@@ -333,30 +318,6 @@ void Task::updateHook()
     }
     
     
-    // Log Debug Information of front and rear Bumpers
-//    std::stringstream debugstream;
-//    
-//    debugstream<<"Aria: Front Bumpers: ";
-//    for(int i=0; i<MRbumpers.nrFront; i++)
-//    {
-//    	debugstream<<frbump[i]<<" ";
-//    }
-//    
-//    LOG_DEBUG_S<<debugstream.str();
-//    debugstream.clear();
-//    debugstream.str("");
-//    
-//    
-//    debugstream<<"Aria: Rear Bumpers: ";
-//    for(int i=0; i<MRbumpers.nrRear; i++)
-//    {
-//    	debugstream<<rebump[i]<<" ";
-//    }
-//    
-//    LOG_DEBUG_S<<debugstream.str();
-//    debugstream.clear();
-//    debugstream.str("");
-        
     // Distribute Messages
     _robot_pose.write(MRpose);
     _robot_pose_raw.write(MRposeraw);
@@ -391,7 +352,6 @@ void Task::stopHook()
     MRrobot->unlock();
     
     MRrobot->stopRunning();
-    MRrobot->waitForRunExit();
     
     // Stop Aria background threads
     Aria::shutdown();

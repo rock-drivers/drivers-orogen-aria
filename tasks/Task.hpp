@@ -48,7 +48,7 @@ namespace aria {
         void transrotVel(::base::MotionCommand2D const & velocities);
         void transrotVel2(double translational, double rotational);
         
-        /** Switch motros off.*/
+        /** Switch motors off.*/
         virtual void motorsOff();
         /* Give power to the motors.*/
         virtual void motorsOn();
