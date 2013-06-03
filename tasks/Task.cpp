@@ -132,6 +132,8 @@ bool Task::startHook()
     LOG_INFO("Aria: Thread started.");
 
 
+    MRrobot->enableMotors();
+    LOG_INFO_S<<"Motors enabled.";
     
     // Turn ON default Power-Ports
     for(std::vector<int>::iterator portsit=PowerPortsON.begin(); portsit!=PowerPortsON.end(); ++portsit){
