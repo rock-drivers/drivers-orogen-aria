@@ -59,6 +59,10 @@ bool Task::configureHook()
     // Read number of wheels
     nwheels = _wheels.get();
     
+    // Initialise Aria
+    Aria::init();
+    LOG_INFO("Aria: Initialised.")
+    
     MRarguments = new ArArgumentBuilder();
     MRarguments->add("-robotPort");
     MRarguments->add(_serial_port.get().c_str());
@@ -95,11 +99,6 @@ bool Task::startHook()
     // Reset index of updateHook
     index = 0;
     
-    // Initialise Aria
-    Aria::init();
-    
-    LOG_INFO("Aria: Initialised.")
-
     //ArLog::init(ArLog::None, ArLog::Normal);
     // Verbose Aria-Logging into Logfile "MrControl_AriaLog.log"
     //ArLog::init(ArLog::File, ArLog::Verbose, "MrControl_AriaLog.log", false, true);
