@@ -110,14 +110,11 @@ bool Task::startHook()
     
     // Connect to Robot or Simulator
     LOG_DEBUG_S<<"Aria: Connecting Robot.";
-    bool connectsuccess = MRconnector->connectRobot(MRrobot);
+    bool connectsuccess = MRconnector->connectRobot();
     LOG_DEBUG_S<<"Aria: Robot connected? "<<connectsuccess;
     
-    if (!connectsuccess){
+    if (!connectsuccess && !MRrobot->isConnected()){
         LOG_ERROR("Aria: Could not connect!");
-        ArLog::log(ArLog::Normal, "Error, could not connect to robot.");
-        //Aria::logOptions(); // show parameters
-        //Aria::exit(1);
         return false;
     }
     else{
@@ -127,10 +124,9 @@ bool Task::startHook()
     LOG_DEBUG_S<<"Aria: Initialising asynchronous Thread.";
     
     // Open new thread for processing cycle
-    MRrobot->runAsync(false);
+    MRrobot->runAsync(true);
     LOG_INFO("Aria: Thread started.");
-
-
+    
     MRrobot->enableMotors();
     LOG_INFO_S<<"Motors enabled.";
     
