@@ -16,11 +16,11 @@ joystickGui.show()
 
 maxSpeed = 0.4 # maximum speed: 1.2 m/s (SeekurJr)
 
-Orocos.run 'robot_control' do
+Orocos.run 'aria::Task' => 'aria' do
   
     # Orocos.log_all_ports
     
-    mrControl = Orocos.name_service.get 'mr_control'
+    mrControl = Orocos.name_service.get 'aria'
     
     # set path to the serial device
     mrControl.serial_port = "/dev/ttyS0"

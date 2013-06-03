@@ -81,6 +81,8 @@ task_context "Task" do
    operation('lrVel').
    	argument('left', 'double').
    	argument('right', 'double')
+   
+   periodic 0.1
 end
 
 
