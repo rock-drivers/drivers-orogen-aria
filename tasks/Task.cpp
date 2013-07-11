@@ -147,7 +147,7 @@ void Task::updateHook()
     
     // Process Motion Commands
     // MotionCommand2D
-    if (_transrot_vel.read(MRmotion) != RTT::NoData){
+    if (_transrot_vel.read(MRmotion) == RTT::NewData){
         LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
         
         MRrobot->lock();
@@ -157,7 +157,14 @@ void Task::updateHook()
         
         MRrobot->unlock();
     }
+    else {
+        MRrobot->lock();
+        MRrobot->setVel(0);
+        MRrobot->setRotVel(0);
+        MRrobot->unlock();
+    }
     
+
     // AA: goForward/goBackward
     if (_aa_transl_vel.read(MRtransVel) != RTT::NoData){
         MRrobot->lock();
