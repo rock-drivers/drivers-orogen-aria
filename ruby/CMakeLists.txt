@@ -1,7 +1,5 @@
-SET(CMAKE_MODULE_PATH "$ENV{ROCK_CMAKE_MACROS}")
-include($ENV{ROCK_CMAKE_MACROS}/Rock.cmake)
-include($ENV{ROCK_CMAKE_MACROS}/RockRuby.cmake)
-
+find_package(Rock)
+include(RockRuby)
 rock_ruby_rice_extension(aria AriaInterface.cpp)
 
 rock_find_pkgconfig(ARIA aria) 
