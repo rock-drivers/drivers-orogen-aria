@@ -1,6 +1,4 @@
 
-//#include <aria/ariaUtil.h>
-
 #include "Task.hpp"
 #include<base/logging.h>
 #include<boost/tokenizer.hpp>
@@ -140,13 +138,13 @@ void Task::updateHook()
     index++;
     
     // Write Commands to Robot
-    base::MotionCommand2D MRmotion;
+    base::commands::Motion2D MRmotion;
     double MRtransVel, MRrotVel;
 
     base::Time t_now = base::Time::now();
     
     // Process Motion Commands
-    // MotionCommand2D
+    // commands::Motion2D
     if (_transrot_vel.read(MRmotion) == RTT::NewData){
         LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
         
@@ -186,16 +184,16 @@ void Task::updateHook()
     // Resize Motor States to number of wheels
     MRmotorstatus.resize(nwheels);
     
-    aria::samples::Velocity MRvel;
-    aria::samples::Velocity2 MRvel2;
-    aria::samples::BatteryLevel MRbatteryLevel;
-    aria::samples::Temperature MRtemperature;
-    aria::samples::CompassHeading MRcompass;
+    samples::Velocity MRvel;
+    samples::Velocity2 MRvel2;
+    samples::BatteryLevel MRbatteryLevel;
+    samples::Temperature MRtemperature;
+    samples::CompassHeading MRcompass;
     
-    aria::samples::Odometer MRodom;
-    aria::samples::Encoder MRenc;
+    samples::Odometer MRodom;
+    samples::Encoder MRenc;
     
-    aria::samples::Bumpers MRbumpers;
+    samples::Bumpers MRbumpers;
     
     // Lock Robot for Reading
     MRrobot->lock();
@@ -248,7 +246,7 @@ void Task::updateHook()
     MRmotorstatus.index = index;
 
     // Status
-    aria::RobotStatus robot_status;
+    RobotStatus robot_status;
     robot_status.time = t_now;
     robot_status.lastPacketTime = fromArTime(MRrobot->getLastPacketTime());
     robot_status.lastOdometryTime = fromArTime(MRrobot->getLastOdometryTime());
@@ -389,7 +387,7 @@ void Task::cleanupHook()
 // Operation Methods
 
 // Set the translational and rotational Velocities
-void Task::transrotVel(::base::MotionCommand2D const & velocities)
+void Task::transrotVel(base::commands::Motion2D const & velocities)
 {
 	LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", velocities.translation, velocities.rotation);
         
@@ -434,7 +432,7 @@ void Task::controlPDB(boost::int32_t portNr, bool onoff)
 }
 
 // Send a direct serial Command to Robot
-void Task::directCommand(::aria::commands::DirectCommand2Byte const & MRcmd2byte)
+void Task::directCommand(commands::DirectCommand2Byte const & MRcmd2byte)
 {
 	LOG_INFO("Aria: Direct Command %i with HB: %i LB: %i", MRcmd2byte.cmdnr, MRcmd2byte.highbyte, MRcmd2byte.lowbyte);
 	

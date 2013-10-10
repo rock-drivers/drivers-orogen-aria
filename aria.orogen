@@ -25,28 +25,43 @@ task_context "Task" do
    # Data can be retrieved using _input.read(value), which returns true if data
    # was available, and false otherwise. _input.connected() returns if this
    # input is connected to an output or not.
-   input_port "transrot_vel", "base/MotionCommand2D"
-   input_port "leftright_vel", "aria/commands/Velocity2"
+   input_port("transrot_vel", "base/commands/Motion2D").
+    doc("Motion given as translation (m/s) and rotation (rad/s) velocity")
+   input_port("leftright_vel", "aria/commands/Velocity2").
+    doc("Motion given as left and right wheel velocity (m/s)")
    
    # Atomic Actions
-   input_port "aa_transl_vel", "double"
-   input_port "aa_rot_vel", "double"
+   input_port("aa_transl_vel", "double").
+    doc("Primitive type to set translation velocity (m/s)")
+   input_port("aa_rot_vel", "double").
+    doc("Primitive type to set turning rate (m/s). Clockwise rotation given with negative values.")
 
    # output ports
-   output_port "robot_status", "aria/RobotStatus"
-
-   output_port "robot_pose", "base/samples/RigidBodyState"
-   output_port "robot_pose_raw", "base/samples/RigidBodyState"
-   output_port "robot_motion", "aria/samples/Velocity"
-   output_port "robot_motion2", "aria/samples/Velocity2"
-   output_port "robot_compass", "aria/samples/CompassHeading"
-   output_port "robot_battery", "aria/samples/BatteryLevel"
-   output_port "robot_temp", "aria/samples/Temperature"
-   output_port "robot_odometer", "aria/samples/Odometer"
-   output_port "robot_encoder", "aria/samples/Encoder"
-   output_port "robot_bumpers", "aria/samples/Bumpers"
+   output_port("robot_status", "aria/RobotStatus").
+    doc("Status of the robot containing several attributes")
+   output_port("robot_pose", "base/samples/RigidBodyState").
+    doc("Pose of the robot relative to its initial position")
+   output_port("robot_pose_raw", "base/samples/RigidBodyState").
+    doc("Raw pose of the robot relative to its initial position without corrections by gyroscope.")
+   output_port("robot_motion", "aria/samples/Velocity").
+    doc("Translation (m/s) and rotation (rad/s) velocity measured by robot")
+   output_port("robot_motion2", "aria/samples/Velocity2").
+    doc("Left and right wheel velocity (m/s) measured by robot")
+   output_port("robot_compass", "aria/samples/CompassHeading").
+    doc("Compass heading")
+   output_port("robot_battery", "aria/samples/BatteryLevel").
+    doc("Battery level in percent")
+   output_port("robot_temp", "aria/samples/Temperature").
+    doc("Temperature of the robot")
+   output_port("robot_odometer", "aria/samples/Odometer").
+    doc("Total travelled distance (m)")
+   output_port("robot_encoder", "aria/samples/Encoder").
+    doc("Wheel encoder values")
+   output_port("robot_bumpers", "aria/samples/Bumpers").
+    doc("State of the bumpers")
    
-   output_port "motor_states", "base/actuators/Status"
+   output_port("motor_states", "base/actuators/Status").
+    doc("Encoder values per wheel")
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
@@ -54,12 +69,14 @@ task_context "Task" do
    
    ## Operations:
    # Reset Odometer
-   operation('resetOdometer')
+   operation('resetOdometer').
+    doc("Reset the total travelled distance returned at port 'robot_odometer'")
    	
    # Turn on/off Port 'portNr' of the PDB
    operation('controlPDB').
    	argument('portNr', 'int').
-   	argument('onoff', 'bool')
+   	argument('onoff', 'bool').
+    doc("De-/Activate a powerport on the power distribution board")
 
     operation('motorsOn').
         doc("give power to the motors")
@@ -68,19 +85,23 @@ task_context "Task" do
    	
    # Send direct Command
    operation('directCommand').
-   	argument('MRcmd2byte', '/aria/commands/DirectCommand2Byte')
+   	argument('MRcmd2byte', '/aria/commands/DirectCommand2Byte').
+    doc("Send raw commands to the controller")
    	
    # Set translational and rotational Velocity
    operation('transrotVel').
-   	argument('velocities', '/base/MotionCommand2D')
+   	argument('velocities', '/base/commands/Motion2D').
+    doc("Set translation and rotation velocity")
    operation('transrotVel2').
    	argument('translational', 'double'). # in m/s
-   	argument('rotational', 'double') #in rad/s
+   	argument('rotational', 'double'). #in rad/s
+    doc("Set translation and rotation velocity separated")
    	
    # Set Velocity for left and right Wheels
    operation('lrVel').
    	argument('left', 'double').
-   	argument('right', 'double')
+   	argument('right', 'double').
+    doc("Set left and right wheel velocity")
    
    periodic 0.1
 end

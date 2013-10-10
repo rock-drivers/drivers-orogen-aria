@@ -42,10 +42,10 @@ namespace aria {
         
         // Operation Methods
         void controlPDB(boost::int32_t portNr, bool onoff);
-        void directCommand(::aria::commands::DirectCommand2Byte const & MRcmd2byte);
+        void directCommand(commands::DirectCommand2Byte const & MRcmd2byte);
         void lrVel(double left, double right);
         void resetOdometer();
-        void transrotVel(::base::MotionCommand2D const & velocities);
+        void transrotVel(base::commands::Motion2D const & velocities);
         void transrotVel2(double translational, double rotational);
         
         /** Switch motors off.*/
