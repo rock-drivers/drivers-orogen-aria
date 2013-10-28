@@ -139,7 +139,6 @@ void Task::updateHook()
     
     // Write Commands to Robot
     base::commands::Motion2D MRmotion;
-    double MRtransVel, MRrotVel;
 
     base::Time t_now = base::Time::now();
     
@@ -162,20 +161,6 @@ void Task::updateHook()
         MRrobot->unlock();
     }
     
-
-    // AA: goForward/goBackward
-    if (_aa_transl_vel.read(MRtransVel) != RTT::NoData){
-        MRrobot->lock();
-        MRrobot->setVel(MRtransVel * 1000);
-        MRrobot->unlock();
-    }
-    
-    // AA: turnLeft/turnRight
-    if (_aa_rot_vel.read(MRrotVel) != RTT::NoData){
-        MRrobot->lock();
-        MRrobot->setRotVel(MRrotVel * 180 / M_PI);        
-        MRrobot->unlock();
-    }
     
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;

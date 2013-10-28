@@ -30,12 +30,6 @@ task_context "Task" do
    input_port("leftright_vel", "aria/commands/Velocity2").
     doc("Motion given as left and right wheel velocity (m/s)")
    
-   # Atomic Actions
-   input_port("aa_transl_vel", "double").
-    doc("Primitive type to set translation velocity (m/s)")
-   input_port("aa_rot_vel", "double").
-    doc("Primitive type to set turning rate (m/s). Clockwise rotation given with negative values.")
-
    # output ports
    output_port("robot_status", "aria/RobotStatus").
     doc("Status of the robot containing several attributes")
