@@ -63,6 +63,9 @@ task_context "Task" do
    output_port("motor_states", "base/actuators/Status").
     doc("Encoder values per wheel")
 
+   output_port("command_time", "base/samples/Motion2D").
+    doc("time after the motion command was written to the aria lib (including command)")
+
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
    # port_driven "transrot_vel"

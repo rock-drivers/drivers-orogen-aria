@@ -154,6 +154,7 @@ void Task::updateHook()
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
         
         MRrobot->unlock();
+        _command_time.write(MRmotion);
     }
     else {
         MRrobot->lock();
