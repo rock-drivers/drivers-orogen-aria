@@ -253,7 +253,7 @@ void Task::updateHook()
         dt = t_now - t_prev;
     }
     
-    // get rotation of wheels by traveled distance per side (through velovcity and delta time)
+    // get rotation of wheels by traveled distance per side (through velocity and delta time)
     wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
     wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
     
