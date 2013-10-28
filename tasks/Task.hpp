@@ -39,6 +39,8 @@ namespace aria {
         uint64_t index;
         float wheel_pos[2]; // position (rad) of wheels (left, right)
         base::Time t_prev; // timemark of previous updateHook
+        base::Time mTimeout;
+        base::Time mLastCommandReceived;
         
         // Operation Methods
         void controlPDB(boost::int32_t portNr, bool onoff);

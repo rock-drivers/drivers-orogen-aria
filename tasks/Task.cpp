@@ -51,6 +51,9 @@ bool Task::configureHook()
     
     // Read number of wheels
     nwheels = _wheels.get();
+
+    mTimeout = base::Time::fromSeconds(_timeout.get());
+    LOG_INFO_S<<"Timeout is: "<<mTimeout;
     
     // Initialise Aria
     Aria::init();
@@ -144,29 +147,42 @@ void Task::updateHook()
     
     // Process Motion Commands
     // commands::Motion2D
+    bool export_mcmd = false;
+    base::samples::Motion2D command_in;
     if (_transrot_vel.read(MRmotion) == RTT::NewData){
-        LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
+        //LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
 
-        base::samples::Motion2D command_in;
-        
+        mLastCommandReceived = base::Time::now();
+
         MRrobot->lock();
-        
+
         MRrobot->setVel(MRmotion.translation * 1000);
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
 
-        command_in.time = base::Time::now();
+        MRrobot->unlock();
+        
         command_in.translation = MRmotion.translation;
         command_in.rotation = MRmotion.rotation;
-        
-        MRrobot->unlock();
 
-        _robot_command_in.write(command_in);
+        export_mcmd = true;
     }
-    else {
+    else if((base::Time::now() - mLastCommandReceived) > mTimeout ) {
+        // send default values after not receiving commands for a certain period
+        //LOG_DEBUG_S<<"Timeout at: "<<base::Time::now();
         MRrobot->lock();
         MRrobot->setVel(0);
         MRrobot->setRotVel(0);
         MRrobot->unlock();
+        
+        command_in.translation = 0;
+        command_in.rotation = 0;
+
+        export_mcmd = true;
+    }
+
+    if(export_mcmd) {
+        command_in.time = base::Time::now();
+        _robot_command_in.write(command_in);
     }
     
     

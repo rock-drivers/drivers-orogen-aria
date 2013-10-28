@@ -19,6 +19,9 @@ task_context "Task" do
    property("wheels", "int", 4).
     doc("Number of Wheels (default: 4)")
 
+   property("timeout", "double", 0.1).
+    doc("Timeout in seconds after which default values will be send to the robot")
+
    # An input port, i.e. an object from which the component gets data from
    # other components' outputs
    #
