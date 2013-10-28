@@ -146,13 +146,21 @@ void Task::updateHook()
     // commands::Motion2D
     if (_transrot_vel.read(MRmotion) == RTT::NewData){
         LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
+
+        base::samples::Motion2D command_in;
         
         MRrobot->lock();
         
         MRrobot->setVel(MRmotion.translation * 1000);
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
+
+        command_in.time = base::Time::now();
+        command_in.translation = MRmotion.translation;
+        command_in.rotation = MRmotion.rotation;
         
         MRrobot->unlock();
+
+        _robot_command_in.write(command_in);
     }
     else {
         MRrobot->lock();
