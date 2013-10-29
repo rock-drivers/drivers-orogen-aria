@@ -19,6 +19,9 @@ task_context "Task" do
    property("wheels", "int", 4).
     doc("Number of Wheels (default: 4)")
 
+   property("timeout", "double", 0.1).
+    doc("Timeout in seconds after which default values will be send to the robot")
+
    # An input port, i.e. an object from which the component gets data from
    # other components' outputs
    #
@@ -30,12 +33,6 @@ task_context "Task" do
    input_port("leftright_vel", "aria/commands/Velocity2").
     doc("Motion given as left and right wheel velocity (m/s)")
    
-   # Atomic Actions
-   input_port("aa_transl_vel", "double").
-    doc("Primitive type to set translation velocity (m/s)")
-   input_port("aa_rot_vel", "double").
-    doc("Primitive type to set turning rate (m/s). Clockwise rotation given with negative values.")
-
    # output ports
    output_port("robot_status", "aria/RobotStatus").
     doc("Status of the robot containing several attributes")
@@ -63,8 +60,8 @@ task_context "Task" do
    output_port("motor_states", "base/actuators/Status").
     doc("Encoder values per wheel")
 
-   output_port("command_time", "base/samples/Motion2D").
-    doc("time after the motion command was written to the aria lib (including command)")
+   output_port("robot_command_in", '/base/samples/Motion2D').
+       doc("Motion command and timestamp when it was transmitted to the robot controller")
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this

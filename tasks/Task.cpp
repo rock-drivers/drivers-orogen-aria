@@ -51,6 +51,9 @@ bool Task::configureHook()
     
     // Read number of wheels
     nwheels = _wheels.get();
+
+    mTimeout = base::Time::fromSeconds(_timeout.get());
+    LOG_INFO_S<<"Timeout is: "<<mTimeout;
     
     // Initialise Aria
     Aria::init();
@@ -139,44 +142,46 @@ void Task::updateHook()
     
     // Write Commands to Robot
     base::commands::Motion2D MRmotion;
-    double MRtransVel, MRrotVel;
 
     base::Time t_now = base::Time::now();
     
     // Process Motion Commands
     // commands::Motion2D
+    bool export_mcmd = false;
+    base::samples::Motion2D command_in;
     if (_transrot_vel.read(MRmotion) == RTT::NewData){
-        LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
-        
+        //LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
+
+        mLastCommandReceived = base::Time::now();
+
         MRrobot->lock();
-        
+
         MRrobot->setVel(MRmotion.translation * 1000);
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
-        
+
         MRrobot->unlock();
-        _command_time.write(MRmotion);
+
+        export_mcmd = true;
     }
-    else {
+    else if((base::Time::now() - mLastCommandReceived) > mTimeout ) {
+        // send default values after not receiving commands for a certain period
+        //LOG_DEBUG_S<<"Timeout at: "<<base::Time::now();
         MRrobot->lock();
         MRrobot->setVel(0);
         MRrobot->setRotVel(0);
         MRrobot->unlock();
-    }
-    
+        
+        command_in.translation = 0;
+        command_in.rotation = 0;
 
-    // AA: goForward/goBackward
-    if (_aa_transl_vel.read(MRtransVel) != RTT::NoData){
-        MRrobot->lock();
-        MRrobot->setVel(MRtransVel * 1000);
-        MRrobot->unlock();
+        export_mcmd = true;
+    }
+
+    if(export_mcmd) {
+        command_in.time = base::Time::now();
+        _robot_command_in.write(MRmotion);
     }
     
-    // AA: turnLeft/turnRight
-    if (_aa_rot_vel.read(MRrotVel) != RTT::NoData){
-        MRrobot->lock();
-        MRrobot->setRotVel(MRrotVel * 180 / M_PI);        
-        MRrobot->unlock();
-    }
     
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
@@ -269,7 +274,7 @@ void Task::updateHook()
         dt = t_now - t_prev;
     }
     
-    // get rotation of wheels by traveled distance per side (through velovcity and delta time)
+    // get rotation of wheels by traveled distance per side (through velocity and delta time)
     wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
     wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
     
