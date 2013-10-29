@@ -160,6 +160,9 @@ void Task::updateHook()
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
 
         MRrobot->unlock();
+        
+        command_in.translation = MRmotion.translation;
+        command_in.rotation = MRmotion.rotation;
 
         export_mcmd = true;
     }
@@ -179,7 +182,7 @@ void Task::updateHook()
 
     if(export_mcmd) {
         command_in.time = base::Time::now();
-        _robot_command_in.write(MRmotion);
+        _robot_command_in.write(command_in);
     }
     
     

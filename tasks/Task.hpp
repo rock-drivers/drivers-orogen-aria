@@ -8,7 +8,6 @@
 #include "Aria.h"
 #include "AriaTypes.hpp"
 #include <odometry/BodyState.hpp> // for enum wheelIdx
-#include <base/templates/TimeStamped.hpp>
 
 namespace aria {
 
