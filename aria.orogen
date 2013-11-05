@@ -14,6 +14,8 @@ task_context "Task" do
 
    property("serial_port", "std/string", "/dev/ttyS0").
     doc("Path to Serial-Port of Controller (default: COM0)")
+   property("baudrate", "int", 9600).
+    doc("Baudrate of ARCOS host controller")
    property("poweron_boot", "std/string").
     doc("Comma or Space separated List of Ports that are powered on at boot")
    property("wheels", "int", 4).

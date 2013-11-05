@@ -62,6 +62,10 @@ bool Task::configureHook()
     MRarguments = new ArArgumentBuilder();
     MRarguments->add("-robotPort");
     MRarguments->add(_serial_port.get().c_str());
+    MRarguments->add("-rb");
+    char bd[10];
+    snprintf(bd,10,"%d",_baudrate.get());
+    MRarguments->add(bd);
     
     // Use boost tokenizer to read the ports that should turned on by default on
     // boot. 'poweron_boot' is of type std::string where all values 
