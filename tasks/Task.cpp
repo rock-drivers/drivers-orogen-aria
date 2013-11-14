@@ -215,6 +215,8 @@ void Task::updateHook()
     
     // Position
     MRpose.time = t_now;
+    MRpose.sourceFrame = _body_frame.get();
+    MRpose.targetFrame = _odometry_frame.get();
     MRpose.position = Eigen::Vector3d(MRrobot->getX() / 1000, MRrobot->getY() / 1000, 0); // in meters
     MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ()); // rad
     
@@ -224,6 +226,8 @@ void Task::updateHook()
     // Raw Position (without corrections by gyro or software if available)
     ArPose pose_raw = MRrobot->getRawEncoderPose();
     MRposeraw.time = t_now;
+    MRposeraw.sourceFrame = _body_frame.get();
+    MRposeraw.targetFrame = _odometry_frame.get();
     MRposeraw.position = Eigen::Vector3d(pose_raw.getX() / 1000, pose_raw.getY() / 1000, 0); // in meters
     MRposeraw.orientation = Eigen::AngleAxis<double>(pose_raw.getThRad(), Eigen::Vector3d::UnitZ()); // rad
     

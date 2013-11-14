@@ -20,6 +20,10 @@ task_context "Task" do
     doc("Comma or Space separated List of Ports that are powered on at boot")
    property("wheels", "int", 4).
     doc("Number of Wheels (default: 4)")
+   # The global name for the local 'odometry' frame
+   property('odometry_frame', '/std/string', 'odometry')
+   # The global name for the local 'body' frame
+   property('body_frame', '/std/string', 'body')
 
    property("timeout", "double", 0.1).
     doc("Timeout in seconds after which default values will be send to the robot")
