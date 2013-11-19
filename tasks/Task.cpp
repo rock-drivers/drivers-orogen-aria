@@ -158,7 +158,10 @@ void Task::updateHook()
 
         mLastCommandReceived = base::Time::now();
 
-        MRrobot->lock();
+        if(MRrobot->lock() != 0) {
+            // see enum ArMutex::Status for further information
+            LOG_ERROR_S<<"Failed to get robot lock!";
+        }
 
         MRrobot->setVel(MRmotion.translation * 1000);
         MRrobot->setRotVel(MRmotion.rotation * 180 / M_PI);
@@ -173,7 +176,10 @@ void Task::updateHook()
     else if((base::Time::now() - mLastCommandReceived) > mTimeout ) {
         // send default values after not receiving commands for a certain period
         //LOG_DEBUG_S<<"Timeout at: "<<base::Time::now();
-        MRrobot->lock();
+        if(MRrobot->lock() != 0) {
+            // see enum ArMutex::Status for further information
+            LOG_ERROR_S<<"Failed to get robot lock!";
+        }
         MRrobot->setVel(0);
         MRrobot->setRotVel(0);
         MRrobot->unlock();
