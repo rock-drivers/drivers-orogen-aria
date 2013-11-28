@@ -16,6 +16,8 @@ task_context "Task" do
     doc("Path to Serial-Port of Controller (default: COM0)")
    property("baudrate", "int", 9600).
     doc("Baudrate of ARCOS host controller")
+   property("ariapath", "/std/string").
+    doc("Path to Aria library (e.g. /usr/local/Aria/")
    property("poweron_boot", "std/string").
     doc("Comma or Space separated List of Ports that are powered on at boot")
    property("wheels", "int", 4).

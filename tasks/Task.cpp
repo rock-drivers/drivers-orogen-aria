@@ -58,7 +58,22 @@ bool Task::configureHook()
     // Initialise Aria
     Aria::init();
     LOG_INFO("Aria: Initialised.")
-    
+
+    // set path to aria
+    const std::string ariapath = _ariapath.get();
+    struct stat dirstat;
+    stat(ariapath.c_str(), &dirstat);
+
+    if(!ariapath.empty() && S_ISDIR(dirstat.st_mode)) { 
+        LOG_DEBUG_S<<"Using Aria path: "<<ariapath;
+        Aria::setDirectory(ariapath.c_str());
+    }
+    else {
+        LOG_WARN_S<<"No Aria path given or directory does not exist: \""<<ariapath<<"\"";
+        LOG_WARN_S<<"Using default aria directory at: "<<Aria::getDirectory();
+    }
+
+
     MRarguments = new ArArgumentBuilder();
     MRarguments->add("-robotPort");
     MRarguments->add(_serial_port.get().c_str());
@@ -218,7 +233,7 @@ void Task::updateHook()
     MRrobot->lock();
     
     double diffconvfactor = MRrobot->getRobotParams()->getDiffConvFactor();
-    
+
     // Position
     MRpose.time = t_now;
     MRpose.sourceFrame = _body_frame.get();
