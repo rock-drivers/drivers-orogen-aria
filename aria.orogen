@@ -13,11 +13,13 @@ task_context "Task" do
    needs_configuration
 
    property("serial_port", "std/string", "/dev/ttyS0").
-    doc("Path to Serial-Port of Controller (default: COM0)")
+    doc("Path to Serial-Port of Controller (default: ttyS0)")
    property("baudrate", "int", 9600).
     doc("Baudrate of ARCOS host controller")
    property("ariapath", "/std/string").
     doc("Path to Aria library (e.g. /usr/local/Aria/")
+   property("parameter", "/std/string").
+    doc("Additional parameters passed to robot connector (e.g. '-rlpr -rlps')")
    property("poweron_boot", "std/string").
     doc("Comma or Space separated List of Ports that are powered on at boot")
    property("wheels", "int", 4).

@@ -77,6 +77,7 @@ bool Task::configureHook()
     MRarguments = new ArArgumentBuilder();
     MRarguments->add("-robotPort");
     MRarguments->add(_serial_port.get().c_str());
+    MRarguments->add(_parameter.get().c_str());
     MRarguments->add("-rb");
     char bd[10];
     snprintf(bd,10,"%d",_baudrate.get());
