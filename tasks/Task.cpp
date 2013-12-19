@@ -140,7 +140,7 @@ bool Task::startHook()
     LOG_DEBUG_S<<"Aria: Initialising asynchronous Thread.";
     
     // Open new thread for processing cycle
-    MRrobot->runAsync(true);
+    //MRrobot->runAsync(true);
     LOG_INFO("Aria: Thread started.");
     
     MRrobot->enableMotors();
@@ -156,7 +156,10 @@ bool Task::startHook()
 void Task::updateHook()
 {
     TaskBase::updateHook();
-    
+
+    MRrobot->loopOnce();
+    MRrobot->incCounter();
+
     // Count updateHook calls
     index++;
     
