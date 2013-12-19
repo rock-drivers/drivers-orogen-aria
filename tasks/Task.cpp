@@ -155,6 +155,8 @@ bool Task::startHook()
 }
 void Task::updateHook()
 {
+    base::Time ustart = base::Time::now();
+
     TaskBase::updateHook();
 
     MRrobot->loopOnce();
@@ -381,6 +383,13 @@ void Task::updateHook()
     
     // start of measurement
     t_prev = t_now;
+
+    base::Time uduration = base::Time::now() - ustart;
+    if(uduration >= mTimeout) {
+        LOG_WARN_S<<"updateHook took "<<uduration.toMilliseconds()
+            <<" ms, which is longer than timeout: "
+            <<mTimeout.toMilliseconds()<<" ms";
+    }
 }
 
 // void Task::errorHook()
