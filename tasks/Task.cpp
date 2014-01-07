@@ -2,6 +2,7 @@
 #include "Task.hpp"
 #include<base/logging.h>
 #include<boost/tokenizer.hpp>
+#include <boost/timer/timer.hpp>
 
 using namespace aria;
 
@@ -156,6 +157,8 @@ bool Task::startHook()
 void Task::updateHook()
 {
     base::Time ustart = base::Time::now();
+
+    boost::timer::cpu_timer bstart;
 
     TaskBase::updateHook();
 
@@ -385,10 +388,14 @@ void Task::updateHook()
     t_prev = t_now;
 
     base::Time uduration = base::Time::now() - ustart;
+
+    boost::timer::cpu_times bduration = bstart.elapsed();
+
     if(uduration >= mTimeout) {
         LOG_WARN_S<<"updateHook took "<<uduration.toMilliseconds()
             <<" ms, which is longer than timeout: "
             <<mTimeout.toMilliseconds()<<" ms";
+        LOG_INFO_S<<"Time consumed on CPU: "<<bduration.user/1e6<<"ms (usr), "<<bduration.system/1e6<<"ms (sys), "<<bduration.wall/1e6<<"ms (real)";
     }
 }
 
