@@ -11,6 +11,7 @@ INSTALL(FILES AriaTypes.hpp
     DESTINATION include/aria)
 
 add_subdirectory(ruby)
+add_subdirectory(powerswitch)
 # FIND_PACKAGE(KDL)
 # FIND_PACKAGE(OCL)
 
