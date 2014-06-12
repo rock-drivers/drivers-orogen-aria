@@ -53,7 +53,7 @@ bool Task::configureHook()
     nwheels = _wheels.get();
 
     mTimeout = base::Time::fromSeconds(_timeout.get());
-    LOG_INFO_S<<"Timeout is: "<<mTimeout;
+    LOG_INFO_S<<"Timeout is: "<<mTimeout.toSeconds()<<" s";
     
     // Initialise Aria
     Aria::init();
@@ -151,6 +151,8 @@ bool Task::startHook()
         controlPDB(*portsit, 1);
     }
     
+    mLastCommandReceived = base::Time::now();
+
     return true;
 }
 void Task::updateHook()
@@ -196,7 +198,7 @@ void Task::updateHook()
     }
     else if((base::Time::now() - mLastCommandReceived) > mTimeout ) {
         // send default values after not receiving commands for a certain period
-        //LOG_DEBUG_S<<"Timeout at: "<<base::Time::now();
+        LOG_INFO_S<<"Timeout at: "<<base::Time::now().toString();
         if(MRrobot->lock() != 0) {
             // see enum ArMutex::Status for further information
             LOG_ERROR_S<<"Failed to get robot lock!";
