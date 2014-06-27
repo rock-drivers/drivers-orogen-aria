@@ -250,7 +250,9 @@ void Task::updateHook()
     MRpose.orientation = Eigen::AngleAxis<double>(MRrobot->getTh() * M_PI/180, Eigen::Vector3d::UnitZ()); // rad
     
     MRpose.velocity = Eigen::Vector3d(MRrobot->getVel() / 1000, 0, 0); // m/s
+    MRpose.cov_velocity(0,0) = pow(_sigma_velocity.get(), 2.0);
     MRpose.angular_velocity = Eigen::Vector3d(MRrobot->getRotVel() * M_PI/180, 0, 0); // rad/s
+    MRpose.cov_angular_velocity(2,2) = pow(_sigma_angular_velocity.get(), 2.0);
     
     // Raw Position (without corrections by gyro or software if available)
     ArPose pose_raw = MRrobot->getRawEncoderPose();

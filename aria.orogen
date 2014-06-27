@@ -29,6 +29,12 @@ task_context "Task" do
    # The global name for the local 'body' frame
    property('body_frame', '/std/string', 'body')
 
+   # Standard deviations
+   property("sigma_velocity", "double", 0.3).
+    doc("Standard deviation of the velocity")
+   property("sigma_angular_velocity", "double", 0.1).
+    doc("Standard deviation of the rotation speed")
+
    property("timeout", "double", 0.1).
     doc("Timeout in seconds after which default values will be send to the robot")
 
