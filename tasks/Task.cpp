@@ -196,21 +196,26 @@ void Task::updateHook()
 
         export_mcmd = true;
     }
-    else if((base::Time::now() - mLastCommandReceived) > mTimeout ) {
-        // send default values after not receiving commands for a certain period
-        LOG_INFO_S<<"Timeout at: "<<base::Time::now().toString();
-        if(MRrobot->lock() != 0) {
-            // see enum ArMutex::Status for further information
-            LOG_ERROR_S<<"Failed to get robot lock!";
-        }
-        MRrobot->setVel(0);
-        MRrobot->setRotVel(0);
-        MRrobot->unlock();
-        
-        command_in.translation = 0;
-        command_in.rotation = 0;
-
+    else {
+        // forward the previously received command to the export port
+        command_in.translation = MRmotion.translation;
+        command_in.rotation = MRmotion.rotation;
         export_mcmd = true;
+
+        if((base::Time::now() - mLastCommandReceived) > mTimeout ) {
+            // send default values after not receiving commands for a certain period
+            LOG_INFO_S<<"Timeout at: "<<base::Time::now().toString();
+            if(MRrobot->lock() != 0) {
+                // see enum ArMutex::Status for further information
+                LOG_ERROR_S<<"Failed to get robot lock!";
+            }
+            MRrobot->setVel(0);
+            MRrobot->setRotVel(0);
+            MRrobot->unlock();
+
+            command_in.translation = 0;
+            command_in.rotation = 0;
+        }
     }
 
     if(export_mcmd) {
