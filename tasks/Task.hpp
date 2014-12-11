@@ -7,7 +7,6 @@
 
 #include "Aria.h"
 #include "AriaTypes.hpp"
-#include <odometry/BodyState.hpp> // for enum wheelIdx
 #include <sys/stat.h>
 
 namespace aria {
