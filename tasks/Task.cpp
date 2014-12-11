@@ -2,6 +2,7 @@
 #include "Task.hpp"
 #include<base/logging.h>
 #include<boost/tokenizer.hpp>
+#include<odometry/BodyState.hpp>
 
 using namespace aria;
 
