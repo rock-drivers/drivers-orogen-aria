@@ -228,6 +228,13 @@ void Task::updateHook()
     base::samples::RigidBodyState MRpose;
     base::samples::RigidBodyState MRposeraw;
     base::actuators::Status MRmotorstatus;
+    base::samples::Joints joints;
+    joints.resize(2);
+    std::vector<std::string> names;
+    names.push_back("left");
+    names.push_back("right");
+    joints.names = names;
+
     // Resize Motor States to number of wheels
     MRmotorstatus.resize(nwheels);
     
@@ -276,6 +283,11 @@ void Task::updateHook()
     MRvel2.time = t_now;
     MRvel2.velLeft = MRrobot->getLeftVel() / 1000; // in m/s
     MRvel2.velRight = MRrobot->getRightVel() / 1000; // in m/s
+
+    //TODO rad/s instead of m/s
+    joints.time = t_now;
+    joints["left"].speed  = MRrobot->getLeftVel() / 1000; // in m/s  
+    joints["right"].speed  = MRrobot->getRightVel() / 1000; // in m/s  
     
     // Battery
     MRbatteryLevel.time = t_now;
@@ -389,6 +401,7 @@ void Task::updateHook()
     _robot_bumpers.write(MRbumpers);
     _motor_states.write(MRmotorstatus);
     _robot_status.write(robot_status);
+    _samples_joints.write(joints);
     
     // start of measurement
     t_prev = t_now;

@@ -60,6 +60,8 @@ task_context "Task" do
     doc("Translation (m/s) and rotation (rad/s) velocity measured by robot")
    output_port("robot_motion2", "aria/samples/Velocity2").
     doc("Left and right wheel velocity (m/s) measured by robot")
+   output_port("samples_joints", "base/samples/Joints").
+    doc("Left and right wheel velocity as base/samples/joints output")
    output_port("robot_compass", "aria/samples/CompassHeading").
     doc("Compass heading")
    output_port("robot_battery", "aria/samples/BatteryLevel").
