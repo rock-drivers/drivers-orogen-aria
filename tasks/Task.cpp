@@ -285,10 +285,18 @@ void Task::updateHook()
     MRvel2.velLeft = MRrobot->getLeftVel() / 1000; // in m/s
     MRvel2.velRight = MRrobot->getRightVel() / 1000; // in m/s
 
-    //TODO rad/s instead of m/s
+    //TODO make parameters configurable 
     joints.time = t_now;
-    joints["left"].speed  = MRrobot->getLeftVel() / 1000; // in m/s  
-    joints["right"].speed  = MRrobot->getRightVel() / 1000; // in m/s  
+    int ticksmm = MRrobot->getOrigRobotConfig()->getTicksMM();
+    const int ticks_per_rev = 500; //according to p3at manual
+    const float gear_ratio = 49.8; //according to p3at manual
+    double wheel_circ = (4 * ticks_per_rev * gear_ratio) / ticksmm;
+
+    double mm2rad = (2 * M_PI) / wheel_circ;
+
+    
+    joints["left"].speed  = MRrobot->getLeftVel() * mm2rad; // left wheel velocity in rad/s 
+    joints["right"].speed  = MRrobot->getRightVel() * mm2rad; // right wheel velocity in rad/s  
     
     // Battery
     MRbatteryLevel.time = t_now;
