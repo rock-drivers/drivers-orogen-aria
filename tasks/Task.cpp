@@ -228,10 +228,9 @@ void Task::updateHook()
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
     base::samples::RigidBodyState MRposeraw;
-    //base::actuators::Status MRmotorstatus;
     base::samples::Joints MRmotorstatus;
-    // Resize Motor States to number of wheels
-    MRmotorstatus.resize(nwheels);
+    MRmotorstatus.resize(2);
+
     MRmotorstatus.names.push_back("LEFT");
     MRmotorstatus.names.push_back("RIGHT");
     
@@ -280,6 +279,7 @@ void Task::updateHook()
     MRvel2.time = t_now;
     MRvel2.velLeft = MRrobot->getLeftVel() / 1000; // in m/s
     MRvel2.velRight = MRrobot->getRightVel() / 1000; // in m/s
+
     
     // Battery
     MRbatteryLevel.time = t_now;
@@ -298,10 +298,6 @@ void Task::updateHook()
     MRodom.odomDistance = MRrobot->getTripOdometerDistance() / 1000; // in m
     MRodom.odomAngle = MRrobot->getTripOdometerDegrees() * M_PI/180; // in rad
     
-    // Motor State
-    MRmotorstatus.time = t_now;
-    //MRmotorstatus.index = index;
-
     // Status
     RobotStatus robot_status;
     robot_status.time = t_now;
@@ -328,11 +324,20 @@ void Task::updateHook()
     // get rotation of wheels by traveled distance per side (through velocity and delta time)
     wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
     wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
+   
+    // we don't get angular wheel velocity, so we calculate it here from aria params  
+    int ticksmm = MRrobot->getOrigRobotConfig()->getTicksMM();
+    const int ticks_per_rev = 500; //according to p3at manual
+    const float gear_ratio = 49.8; //according to p3at manual
+    double wheel_circ = (4 * ticks_per_rev * gear_ratio) / ticksmm;
+    double mm2rad = (2 * M_PI) / wheel_circ;
     
+    // Motor State
+    MRmotorstatus.time = t_now;
     MRmotorstatus["LEFT"].position = wheel_pos[0]; // front left
-    MRmotorstatus["LEFT"].speed = MRrobot->getLeftVel() / 1000; // ATTENTION: m/s, not rad/s
     MRmotorstatus["RIGHT"].position = wheel_pos[1]; // front right
-    MRmotorstatus["RIGHT"].speed = MRrobot->getRightVel() / 1000; // ATTENTION: m/s, not rad/s
+    MRmotorstatus["LEFT"].speed  = MRrobot->getLeftVel() * mm2rad; // left wheel velocity in rad/s 
+    MRmotorstatus["RIGHT"].speed  = MRrobot->getRightVel() * mm2rad; // right wheel velocity in rad/s  
 
     // Raw Data from left and right Encoders
     MRenc.time = t_now;
