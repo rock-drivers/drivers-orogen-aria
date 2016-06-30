@@ -73,7 +73,7 @@ task_context "Task" do
    output_port("robot_bumpers", "aria/samples/Bumpers").
     doc("State of the bumpers")
    
-   output_port("motor_states", "base/actuators/Status").
+   output_port("motor_states", "base/samples/Joints").
     doc("Encoder values per wheel")
 
    output_port("robot_command_in", '/base/samples/Motion2D').

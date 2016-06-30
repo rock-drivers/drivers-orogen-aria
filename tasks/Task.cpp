@@ -1,8 +1,8 @@
 
 #include "Task.hpp"
-#include<base/logging.h>
 #include<boost/tokenizer.hpp>
 #include<odometry/BodyState.hpp>
+#include<base-logging/Logging.hpp>
 
 using namespace aria;
 
@@ -228,9 +228,11 @@ void Task::updateHook()
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
     base::samples::RigidBodyState MRposeraw;
-    base::actuators::Status MRmotorstatus;
-    // Resize Motor States to number of wheels
-    MRmotorstatus.resize(nwheels);
+    base::samples::Joints MRmotorstatus;
+    MRmotorstatus.resize(2);
+
+    MRmotorstatus.names.push_back("LEFT");
+    MRmotorstatus.names.push_back("RIGHT");
     
     samples::Velocity MRvel;
     samples::Velocity2 MRvel2;
@@ -277,6 +279,7 @@ void Task::updateHook()
     MRvel2.time = t_now;
     MRvel2.velLeft = MRrobot->getLeftVel() / 1000; // in m/s
     MRvel2.velRight = MRrobot->getRightVel() / 1000; // in m/s
+
     
     // Battery
     MRbatteryLevel.time = t_now;
@@ -290,15 +293,11 @@ void Task::updateHook()
     MRcompass.time = t_now;
     MRcompass.heading = MRrobot->getCompass();
     
-    // Odomerty
+    // Odometry
     MRodom.time = t_now;
     MRodom.odomDistance = MRrobot->getTripOdometerDistance() / 1000; // in m
     MRodom.odomAngle = MRrobot->getTripOdometerDegrees() * M_PI/180; // in rad
     
-    // Motor State
-    MRmotorstatus.time = t_now;
-    MRmotorstatus.index = index;
-
     // Status
     RobotStatus robot_status;
     robot_status.time = t_now;
@@ -325,17 +324,21 @@ void Task::updateHook()
     // get rotation of wheels by traveled distance per side (through velocity and delta time)
     wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
     wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
+   
+    // we don't get angular wheel velocity, so we calculate it here from aria params  
+    int ticksmm = MRrobot->getOrigRobotConfig()->getTicksMM();
+    const int ticks_per_rev = 500; //according to p3at manual
+    const float gear_ratio = 49.8; //according to p3at manual
+    double wheel_circ = (4 * ticks_per_rev * gear_ratio) / ticksmm;
+    double mm2rad = (2 * M_PI) / wheel_circ;
     
-    MRmotorstatus.states[odometry::FRONT_LEFT].position = wheel_pos[0]; // front left
-    MRmotorstatus.states[odometry::REAR_LEFT].position = wheel_pos[0]; // rear left
-    MRmotorstatus.states[odometry::FRONT_RIGHT].position = wheel_pos[1]; // front right
-    MRmotorstatus.states[odometry::REAR_RIGHT].position = wheel_pos[1]; // rear right
-    MRmotorstatus.states[odometry::FRONT_LEFT].positionExtern = wheel_pos[0]; // front left
-    MRmotorstatus.states[odometry::REAR_LEFT].positionExtern = wheel_pos[0]; // rear left
-    MRmotorstatus.states[odometry::FRONT_RIGHT].positionExtern = wheel_pos[1]; // front right
-    MRmotorstatus.states[odometry::REAR_RIGHT].positionExtern = wheel_pos[1]; // rear right
-    
-    
+    // Motor State
+    MRmotorstatus.time = t_now;
+    MRmotorstatus["LEFT"].position = wheel_pos[0]; // front left
+    MRmotorstatus["RIGHT"].position = wheel_pos[1]; // front right
+    MRmotorstatus["LEFT"].speed  = MRrobot->getLeftVel() * mm2rad; // left wheel velocity in rad/s 
+    MRmotorstatus["RIGHT"].speed  = MRrobot->getRightVel() * mm2rad; // right wheel velocity in rad/s  
+
     // Raw Data from left and right Encoders
     MRenc.time = t_now;
     MRrobot->requestEncoderPackets();
@@ -361,18 +364,14 @@ void Task::updateHook()
     MRrobot->unlock();
     
     // Write Bumper States per Bumper into Vector
-    bool frbump[MRbumpers.nrFront];
-    bool rebump[MRbumpers.nrRear];
     int bit = 0;
     unsigned int i = 0;
     
     for(i = 0, bit = 2; i < MRrobot->getNumFrontBumpers(); i++, bit *= 2){
-    	frbump[i] = (MRbumpers.front & bit);
     	MRbumpers.bumpersFront.push_back( (maskFront & bit) );
     }
     
     for (i = 0, bit = 2; i < MRrobot->getNumRearBumpers(); i++, bit *= 2){
-    	rebump[i] = (MRbumpers.rear & bit);
     	MRbumpers.bumpersRear.push_back( (maskRear & bit) );
     }
     
