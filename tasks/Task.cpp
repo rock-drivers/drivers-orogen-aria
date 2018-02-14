@@ -228,7 +228,7 @@ void Task::updateHook()
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
     base::samples::RigidBodyState MRposeraw;
-    base::actuators::Status MRmotorstatus;
+    //base::actuators::Status MRmotorstatus;
     base::samples::Joints joints;
     joints.resize(2);
     std::vector<std::string> names;
@@ -237,7 +237,7 @@ void Task::updateHook()
     joints.names = names;
 
     // Resize Motor States to number of wheels
-    MRmotorstatus.resize(nwheels);
+    //MRmotorstatus.resize(nwheels);
     
     samples::Velocity MRvel;
     samples::Velocity2 MRvel2;
@@ -316,8 +316,8 @@ void Task::updateHook()
     MRodom.odomAngle = MRrobot->getTripOdometerDegrees() * M_PI/180; // in rad
     
     // Motor State
-    MRmotorstatus.time = t_now;
-    MRmotorstatus.index = index;
+    //MRmotorstatus.time = t_now;
+    //MRmotorstatus.index = index;
 
     // Status
     RobotStatus robot_status;
@@ -346,14 +346,14 @@ void Task::updateHook()
     wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
     wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
     
-    MRmotorstatus.states[odometry::FRONT_LEFT].position = wheel_pos[0]; // front left
-    MRmotorstatus.states[odometry::REAR_LEFT].position = wheel_pos[0]; // rear left
-    MRmotorstatus.states[odometry::FRONT_RIGHT].position = wheel_pos[1]; // front right
-    MRmotorstatus.states[odometry::REAR_RIGHT].position = wheel_pos[1]; // rear right
-    MRmotorstatus.states[odometry::FRONT_LEFT].positionExtern = wheel_pos[0]; // front left
-    MRmotorstatus.states[odometry::REAR_LEFT].positionExtern = wheel_pos[0]; // rear left
-    MRmotorstatus.states[odometry::FRONT_RIGHT].positionExtern = wheel_pos[1]; // front right
-    MRmotorstatus.states[odometry::REAR_RIGHT].positionExtern = wheel_pos[1]; // rear right
+    //MRmotorstatus.states[odometry::FRONT_LEFT].position = wheel_pos[0]; // front left
+    //MRmotorstatus.states[odometry::REAR_LEFT].position = wheel_pos[0]; // rear left
+    //MRmotorstatus.states[odometry::FRONT_RIGHT].position = wheel_pos[1]; // front right
+    //MRmotorstatus.states[odometry::REAR_RIGHT].position = wheel_pos[1]; // rear right
+    //MRmotorstatus.states[odometry::FRONT_LEFT].positionExtern = wheel_pos[0]; // front left
+    //MRmotorstatus.states[odometry::REAR_LEFT].positionExtern = wheel_pos[0]; // rear left
+    //MRmotorstatus.states[odometry::FRONT_RIGHT].positionExtern = wheel_pos[1]; // front right
+    //MRmotorstatus.states[odometry::REAR_RIGHT].positionExtern = wheel_pos[1]; // rear right
     
     
     // Raw Data from left and right Encoders
@@ -408,7 +408,7 @@ void Task::updateHook()
     _robot_odometer.write(MRodom);
     _robot_encoder.write(MRenc);
     _robot_bumpers.write(MRbumpers);
-    _motor_states.write(MRmotorstatus);
+//    _motor_states.write(MRmotorstatus);
     _robot_status.write(robot_status);
     _samples_joints.write(joints);
     

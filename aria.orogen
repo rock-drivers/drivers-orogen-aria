@@ -74,9 +74,6 @@ task_context "Task" do
     doc("Wheel encoder values")
    output_port("robot_bumpers", "aria/samples/Bumpers").
     doc("State of the bumpers")
-   
-   output_port("motor_states", "base/actuators/Status").
-    doc("Encoder values per wheel")
 
    output_port("robot_command_in", '/base/samples/Motion2D').
        doc("Motion command and timestamp when it was transmitted to the robot controller")

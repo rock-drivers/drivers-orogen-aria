@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include <base/time.h>
-#include <base/motion_command.h>
+#include <base/Time.hpp>
+#include <base/commands/Motion2D.hpp>
 
 namespace aria
 {
@@ -54,7 +54,7 @@ namespace samples
 {
 	struct Velocity
 	{
-		base::MotionCommand2D velTransRot;
+		base::commands::Motion2D velTransRot;
 		base::Time time;
 	};
 	
