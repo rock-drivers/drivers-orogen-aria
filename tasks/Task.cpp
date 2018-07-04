@@ -232,9 +232,9 @@ void Task::updateHook()
     // Read Sensor Data from Robot
     base::samples::RigidBodyState MRpose;
     base::samples::RigidBodyState MRposeraw;
-    base::actuators::Status MRmotorstatus;
+//    base::actuators::Status MRmotorstatus;
     // Resize Motor States to number of wheels
-    MRmotorstatus.resize(nwheels);
+//    MRmotorstatus.resize(nwheels);
     
     samples::Velocity MRvel;
     samples::Velocity2 MRvel2;
@@ -300,9 +300,9 @@ void Task::updateHook()
     MRodom.odomAngle = MRrobot->getTripOdometerDegrees() * M_PI/180; // in rad
     
     // Motor State
-    MRmotorstatus.time = t_now;
+/*  MRmotorstatus.time = t_now;
     MRmotorstatus.index = index;
-
+*/
     // Status
     RobotStatus robot_status;
     robot_status.time = t_now;
@@ -329,7 +329,7 @@ void Task::updateHook()
     // get rotation of wheels by traveled distance per side (through velocity and delta time)
     wheel_pos[0] += MRrobot->getLeftVel() * diffconvfactor * dt.toSeconds();
     wheel_pos[1] += MRrobot->getRightVel() * diffconvfactor * dt.toSeconds();
-    
+/*    
     MRmotorstatus.states[odometry::FRONT_LEFT].position = wheel_pos[0]; // front left
     MRmotorstatus.states[odometry::REAR_LEFT].position = wheel_pos[0]; // rear left
     MRmotorstatus.states[odometry::FRONT_RIGHT].position = wheel_pos[1]; // front right
@@ -338,7 +338,7 @@ void Task::updateHook()
     MRmotorstatus.states[odometry::REAR_LEFT].positionExtern = wheel_pos[0]; // rear left
     MRmotorstatus.states[odometry::FRONT_RIGHT].positionExtern = wheel_pos[1]; // front right
     MRmotorstatus.states[odometry::REAR_RIGHT].positionExtern = wheel_pos[1]; // rear right
-    
+*/    
     
     // Raw Data from left and right Encoders
     MRenc.time = t_now;
@@ -392,7 +392,7 @@ void Task::updateHook()
     _robot_odometer.write(MRodom);
     _robot_encoder.write(MRenc);
     _robot_bumpers.write(MRbumpers);
-    _motor_states.write(MRmotorstatus);
+//    _motor_states.write(MRmotorstatus);
     _robot_status.write(robot_status);
     
     // start of measurement
