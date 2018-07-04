@@ -1,6 +1,6 @@
 
 #include "Task.hpp"
-#include<base/logging.h>
+#include<base-logging/Logging.hpp>
 #include<boost/tokenizer.hpp>
 #include<odometry/BodyState.hpp>
 
@@ -176,7 +176,10 @@ void Task::updateHook()
     // Process Motion Commands
     // commands::Motion2D
     bool export_mcmd = false;
-    base::samples::Motion2D command_in;
+    //base::samples::Motion2D command_in; // Deprecated type
+    //base::samples::Joints command_in;
+    base::commands::Motion2D command_in;
+
     if (_transrot_vel.read(MRmotion) == RTT::NewData){
         //LOG_DEBUG("Aria: TranslVel %.3f m/s, RotVel %.3f rad/s", MRmotion.translation, MRmotion.rotation);
 
@@ -220,7 +223,8 @@ void Task::updateHook()
     }
 
     if(export_mcmd) {
-        command_in.time = base::Time::now();
+        // TODO verify below
+        //command_in.time = base::Time::now();
         _robot_command_in.write(command_in);
     }
     

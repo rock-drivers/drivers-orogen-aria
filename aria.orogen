@@ -73,11 +73,13 @@ task_context "Task" do
    output_port("robot_bumpers", "aria/samples/Bumpers").
     doc("State of the bumpers")
    
-   output_port("motor_states", "base/actuators/Status").
+   output_port("motor_states", "base/samples/Joints").
+   #output_port("motor_states", "base/actuators/Status").
     doc("Encoder values per wheel")
 
-   output_port("robot_command_in", '/base/samples/Motion2D').
-       doc("Motion command and timestamp when it was transmitted to the robot controller")
+   #output_port("robot_command_in", '/base/samples/Joints').
+   output_port("robot_command_in", '/base/commands/Motion2D').
+    doc("Motion command and timestamp when it was transmitted to the robot controller")
 
    # If you want that component's updateHook() to be executed when the "input"
    # port gets data, uncomment this
@@ -105,19 +107,19 @@ task_context "Task" do
     doc("Send raw commands to the controller")
    	
    # Set translational and rotational Velocity
-   operation('transrotVel').
-   	argument('velocities', '/base/commands/Motion2D').
-    doc("Set translation and rotation velocity")
-   operation('transrotVel2').
-   	argument('translational', 'double'). # in m/s
-   	argument('rotational', 'double'). #in rad/s
-    doc("Set translation and rotation velocity separated")
+   #operation('transrotVel').
+   #	argument('velocities', '/base/commands/Motion2D').
+   # doc("Set translation and rotation velocity")
+   #operation('transrotVel2').
+   #	argument('translational', 'double'). # in m/s
+   #	argument('rotational', 'double'). #in rad/s
+   # doc("Set translation and rotation velocity separated")
    	
    # Set Velocity for left and right Wheels
-   operation('lrVel').
-   	argument('left', 'double').
-   	argument('right', 'double').
-    doc("Set left and right wheel velocity")
+   #operation('lrVel').
+   #	argument('left', 'double').
+   #	argument('right', 'double').
+   # doc("Set left and right wheel velocity")
    
    periodic 0.1
 end
